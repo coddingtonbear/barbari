@@ -22,3 +22,4 @@ Intentions are that this will:
 * [ ] Instruct flatcam to generate the proper gcode for each drill layer, grouping drills into configurable groups for Vias, PTH, and NPTH holes.
 * [ ] Configurable via a dotfile somewhere.
 * [ ] *Stretch* Maybe join all of the gcode files together into a single one having tool change commands separating relevant steps (easy on the drill side; harder on the copper side).
+* [ ] Use defaults roughly matching my current settings: https://paper.dropbox.com/doc/PCB-Milling-Notes--AmX9FgCt_K1o8WPmG9VXxW91AQ-lL47V3KW6TPvoprLymnRV
