@@ -1,3 +1,5 @@
+![header-image](http://coddingtonbear-public.s3.amazonaws.com/github/barbari/header.jpg)
+
 # Barbari: An automation script for generating milling gcode via Flatcam
 
 *This is a work in progress*
