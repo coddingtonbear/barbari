@@ -3,3 +3,4 @@ include/*
 src/*
 share/*
 lib/*
+.vscode/*
