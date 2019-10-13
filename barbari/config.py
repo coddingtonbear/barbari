@@ -1,8 +1,12 @@
 import json
+import logging
 import os
 from typing import Dict, List, Union
 
 import appdirs
+
+
+logger = logging.getLogger(__name__)
 
 
 class JobSpec(object):
@@ -147,9 +151,12 @@ class Config(object):
 
 
 def get_user_config_path() -> str:
-    return appdirs.user_config_dir(
-        "barbari",
-        "coddingtonbear"
+    return os.path.join(
+        appdirs.user_config_dir(
+            "barbari",
+            "coddingtonbear"
+        ),
+        "config.json"
     )
 
 
@@ -160,21 +167,35 @@ def get_user_config_dict() -> dict:
         return json.load(inf)
 
 
+def get_default_config_path() -> str:
+    return os.path.join(
+        os.path.dirname(__file__),
+        "config.json"
+    )
+
+
 def get_default_config_dict() -> dict:
-    with open(
-        os.path.join(
-            os.path.dirname(__file__),
-            "config.json"
-        ),
-        "r"
-    ) as inf:
+    with open(get_default_config_path(), "r") as inf:
         return json.load(inf)
 
 
 def get_config() -> Config:
     try:
+        logger.info(
+            "Looking for user configuration at %s...",
+            get_user_config_path()
+        )
         config_data = get_user_config_dict()
+        logger.info(
+            "Loaded user-specified configuration from %s",
+            get_user_config_path()
+        )
     except OSError:
+        logger.info("User configuration not found.")
         config_data = get_default_config_dict()
+        logger.info(
+            "Loaded default configuration from %s",
+            get_default_config_path()
+        )
 
     return Config(config_data)

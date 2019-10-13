@@ -2,24 +2,22 @@
 
 # Barbari: An automation script for generating milling gcode via Flatcam
 
-*This is a work in progress*
-
 I use a cheap 1610 CNC machine, KiCad, and Flatcam for milling PCBs, but remembering exactly which settings to use for each page in Flatcam for generating my milling gcode is a pain, and I occasionally mistype important values (they're almost all important!).  This flatcam automation script is intended to eliminate that problem by taking my memory and observation skills out of the equation.
 
-## Goals:
+## Use
 
 Run with flatcam via:
 
 ```
     barbari /path/to/gerber/exports
-    flatcam --shellfile=/path/to/gerber/exports/barbari.flatcam_shell
+    flatcam --shellfile=/path/to/gerber/exports/flatcam_shell
 ```
 
-Intentions are that this will:
+## Configuration
 
-* [ ] Automatically generate alignment drills of a configurable size for lining-up the F.Cu and B.Cu layers, including mirroring the B.Cu layer.
-* [ ] Instruct flatcam to generate the proper gcode for each copper layer.
-* [ ] Instruct flatcam to generate the proper gcode for each drill layer, grouping drills into configurable groups for Vias, PTH, and NPTH holes.
-* [ ] Configurable via a dotfile somewhere.
-* [ ] *Stretch* Maybe join all of the gcode files together into a single one having tool change commands separating relevant steps (easy on the drill side; harder on the copper side).
-* [ ] Use defaults roughly matching my current settings: https://paper.dropbox.com/doc/PCB-Milling-Notes--AmX9FgCt_K1o8WPmG9VXxW91AQ-lL47V3KW6TPvoprLymnRV
+By default, Barbari is configured to generate fairly conservatively
+millable PCBs, and makes a handful of assumptions about how you might
+want to drill your PCB; you can override these configurations by
+
+1. Generating a configuration file by running `barbari generate_config`
+2. Editing the file at the path displayed.

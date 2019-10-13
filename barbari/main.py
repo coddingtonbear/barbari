@@ -1,4 +1,5 @@
 import argparse
+import json
 import logging
 import os
 import sys
@@ -9,11 +10,21 @@ from . import config, gerbers, flatcam
 logger = logging.getLogger(__name__)
 
 
-def main(*args):
+COMMANDS = {}
+
+
+def command(fn):
+    global COMMANDS
+
+    COMMANDS[fn.__name__] = fn
+
+
+@command
+def build(*args):
     parser = argparse.ArgumentParser()
     parser.add_argument('directory')
     parser.add_argument('--verbose', default=False, action='store_true')
-    args = parser.parse_args()
+    args = parser.parse_args(args)
 
     if args.verbose:
         logging.basicConfig(level=logging.DEBUG)
@@ -37,6 +48,26 @@ def main(*args):
         for process in processes:
             outf.write(str(process))
             outf.write('\n')
+
+
+@command
+def generate_config(*args):
+    parser = argparse.ArgumentParser()
+    parser.parse_args(args)
+
+    os.makedirs(os.path.dirname(config.get_user_config_path()))
+    with open(config.get_user_config_path(), 'w') as outf:
+        outf.write(json.dumps(config.get_default_config_dict()))
+
+    print("Default configuration copied to %s" % config.get_user_config_path())
+
+
+def main(*args):
+    parser = argparse.ArgumentParser()
+    parser.add_argument('command', choices=COMMANDS.keys())
+    args, extra = parser.parse_known_args()
+
+    COMMANDS[args.command](*extra)
 
 
 if __name__ == '__main__':

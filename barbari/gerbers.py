@@ -49,6 +49,9 @@ class GerberProject(object):
                 self._path,
                 filename,
             )
+            if not os.path.isfile(full_path):
+                continue
+
             try:
                 layer = gerber.read(full_path)
                 layer_type = self.detect_layer_type(filename, layer)
