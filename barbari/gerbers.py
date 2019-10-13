@@ -3,6 +3,8 @@ import os
 
 import gerber
 
+from .constants import LayerType
+
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +20,11 @@ class GerberProject(object):
 
         super().__init__()
 
-    def detect_layer_type(self, filename, layer):
+    @property
+    def path(self) -> str:
+        return self._path
+
+    def detect_layer_type(self, filename: str, layer):
         if '-B.Cu.' in filename:
             return LayerType.B_CU
         elif '-F.Cu.' in filename:
