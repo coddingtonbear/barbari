@@ -19,7 +19,7 @@
         "feed_rate": 200,
         "spindle_speed": 12000,
         "multi_depth": true,
-        "depth_per_pass": 0.2
+        "depth_per_pass": 0.1
     },
     "drill_profiles": {
         "via": {
