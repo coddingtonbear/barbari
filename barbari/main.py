@@ -55,7 +55,10 @@ def generate_config(*args):
     parser = argparse.ArgumentParser()
     parser.parse_args(args)
 
-    os.makedirs(os.path.dirname(config.get_user_config_path()))
+    os.makedirs(
+        os.path.dirname(config.get_user_config_path()),
+        exist_ok=True
+    )
     with open(config.get_user_config_path(), 'w') as outf:
         outf.write(json.dumps(config.get_default_config_dict()))
 
