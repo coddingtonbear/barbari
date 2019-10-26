@@ -9,7 +9,7 @@ I use a cheap 1610 CNC machine, KiCad, and Flatcam for milling PCBs, but remembe
 Run with flatcam via:
 
 ```
-    barbari /path/to/gerber/exports
+    barbari build /path/to/gerber/exports
     flatcam --shellfile=/path/to/gerber/exports/flatcam_shell
 ```
 
