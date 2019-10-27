@@ -69,11 +69,11 @@ class FlatcamDrillCNCJob(FlatcamProcess):
         return super().__init__(
             "drillcncjob",
             self.get_layer_name(input_layer),
+            tools=','.join(str(id) for id in tool_ids),
             drillz=config.drill_z,
             travelz=config.travel_z,
             feedrate=config.feed_rate,
             spindlespeed=config.spindle_speed,
-            toolchange=False,
             outname=self.get_layer_name(output_layer),
         )
 
