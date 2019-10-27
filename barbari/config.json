@@ -29,7 +29,7 @@
                     "type": "cnc_drill",
                     "params": {
                         "tool_size": 0.4,
-                        "drill_z": -2.0,
+                        "drill_z": -2.5,
                         "travel_z": 2.0,
                         "feed_rate": 150,
                         "spindle_speed": 12000
@@ -45,7 +45,7 @@
                     "type": "cnc_drill",
                     "params": {
                         "tool_size": 0.7,
-                        "drill_z": -2.0,
+                        "drill_z": -2.5,
                         "travel_z": 2.0,
                         "feed_rate": 250,
                         "spindle_speed": 12000
@@ -55,7 +55,7 @@
                     "type": "cnc_drill",
                     "params": {
                         "tool_size": 1.5,
-                        "drill_z": -2.0,
+                        "drill_z": -2.5,
                         "travel_z": 2.0,
                         "feed_rate": 200,
                         "spindle_speed": 12000
