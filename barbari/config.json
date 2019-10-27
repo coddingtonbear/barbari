@@ -58,7 +58,7 @@
                         "drill_z": -2.5,
                         "travel_z": 2.0,
                         "feed_rate": 200,
-                        "spindle_speed": 12000
+                        "spindle_speed": 8000
                     }
                 }
             ]
