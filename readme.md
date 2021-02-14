@@ -24,7 +24,7 @@ your board. ![](https://coddingtonbear-public.s3-us-west-2.amazonaws.com/github/
    - "PTH and NPTH in a single file" is checked.
    - Drill Origin is set to "Auxiliary axis"
    - Drill Units is set to "Millimeters"
-6. Make note of the path to which these files were written for use below as `/path/to/gerber/exports`.  ![](https://coddingtonbear-public.s3-us-west-2.amazonaws.com/github/barbari/instructions_gerber_path_gerber.png) ![](https://coddingtonbear-public.s3-us-west-2.amazonaws.com/github/barbari/instructions_gerber_path_drill.png).
+6. Make note of the path to which these files were written for use below as `/path/to/gerber/exports`.  ![](https://coddingtonbear-public.s3-us-west-2.amazonaws.com/github/barbari/instructions_gerber_path_gerber.png) ![](https://coddingtonbear-public.s3-us-west-2.amazonaws.com/github/barbari/instructions_gerber_path_drill.png)
 6. Close the displayed dialogs.
 
 Generate your flatcam script:
