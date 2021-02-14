@@ -60,7 +60,7 @@ def generate_config(*args):
         exist_ok=True
     )
     with open(config.get_user_config_path(), 'w') as outf:
-        outf.write(json.dumps(config.get_default_config_dict()))
+        outf.write(json.dumps(config.get_default_config_dict(), sort_keys=True, indent=4))
 
     print("Default configuration copied to %s" % config.get_user_config_path())
 
