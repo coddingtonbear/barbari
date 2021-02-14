@@ -4,13 +4,17 @@
 
 I use a cheap 1610 CNC machine, KiCad, and Flatcam for milling PCBs, but remembering exactly which settings to use for each page in Flatcam for generating my milling gcode is a pain, and I occasionally mistype important values (they're almost all important!).  This flatcam automation script is intended to eliminate that problem by taking my memory and observation skills out of the equation.
 
+## Requirements
+
+- Flatcam: `Beta` branch (tested with 8.884)
+
 ## Use
 
 Run with flatcam via:
 
 ```
     barbari build /path/to/gerber/exports
-    flatcam --shellfile=/path/to/gerber/exports/flatcam_shell
+    flatcam --shellfile=/path/to/gerber/exports/generate_gcode.FlatScript
 ```
 
 ## Configuration

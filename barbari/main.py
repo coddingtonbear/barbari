@@ -41,7 +41,7 @@ def build(*args):
 
     output_file = os.path.join(
         args.directory,
-        "flatcam_shell",
+        "generate_gcode.FlatScript",
     )
     processes = generator.get_cnc_processes()
     with open(output_file, "w") as outf:
