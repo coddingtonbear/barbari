@@ -17,11 +17,11 @@ class UnknownLayerType(ValueError):
 
 class GerberProject(object):
     LAYER_NAME_PATTERNS: Dict[LayerType, re.Pattern] = {
-        LayerType.B_CU: re.compile('.*\-B(?:[._])Cu\..*'),
-        LayerType.F_CU: re.compile('.*\-F(?:[._])Cu\..*'),
-        LayerType.EDGE_CUTS: re.compile('.*\-Edge(?:[._])Cuts'),
-        LayerType.ALIGNMENT: re.compile('.*-Alignment\..*'),
-        LayerType.DRILL: re.compile('.*\.drl$')
+        LayerType.B_CU: re.compile(".*\-B(?:[._])Cu\..*"),
+        LayerType.F_CU: re.compile(".*\-F(?:[._])Cu\..*"),
+        LayerType.EDGE_CUTS: re.compile(".*\-Edge(?:[._])Cuts"),
+        LayerType.ALIGNMENT: re.compile(".*-Alignment\..*"),
+        LayerType.DRILL: re.compile(".*\.drl$"),
     }
 
     def __init__(self, path):
@@ -39,9 +39,7 @@ class GerberProject(object):
             if pattern.match(filename):
                 return layer_type
 
-        raise UnknownLayerType(
-            "Unable to guess layer position for {}".format(filename)
-        )
+        raise UnknownLayerType("Unable to guess layer position for {}".format(filename))
 
     def get_layers(self):
         if self._layers:
@@ -61,12 +59,8 @@ class GerberProject(object):
                 self._layers[layer_type] = layer
                 logger.debug("Loaded %s", full_path)
             except UnknownLayerType:
-                logger.error(
-                    "Could not identify layer type for %s.", full_path
-                )
+                logger.error("Could not identify layer type for %s.", full_path)
             except gerber.common.ParseError:
-                logger.debug(
-                    "Unable to parse %s; probably not a gerber.", full_path
-                )
+                logger.debug("Unable to parse %s; probably not a gerber.", full_path)
 
         return self._layers

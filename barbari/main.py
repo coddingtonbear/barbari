@@ -22,20 +22,14 @@ def command(fn):
 @command
 def build(*args):
     parser = argparse.ArgumentParser()
-    parser.add_argument('directory')
-    parser.add_argument('--verbose', default=False, action='store_true')
+    parser.add_argument("directory")
+    parser.add_argument("--verbose", default=False, action="store_true")
     args = parser.parse_args(args)
 
     if args.verbose:
         logging.basicConfig(level=logging.DEBUG)
 
-    project = gerbers.GerberProject(
-        os.path.abspath(
-            os.path.expanduser(
-                args.directory
-            )
-        )
-    )
+    project = gerbers.GerberProject(os.path.abspath(os.path.expanduser(args.directory)))
     configuration = config.get_config()
     generator = flatcam.FlatcamProjectGenerator(project, configuration)
 
@@ -47,7 +41,7 @@ def build(*args):
     with open(output_file, "w") as outf:
         for process in processes:
             outf.write(str(process))
-            outf.write('\n')
+            outf.write("\n")
 
 
 @command
@@ -55,29 +49,29 @@ def generate_config(*args):
     parser = argparse.ArgumentParser()
     parser.parse_args(args)
 
-    os.makedirs(
-        os.path.dirname(config.get_user_config_path()),
-        exist_ok=True
-    )
-    with open(config.get_user_config_path(), 'w') as outf:
-        outf.write(json.dumps(config.get_default_config_dict(), sort_keys=True, indent=4))
+    os.makedirs(os.path.dirname(config.get_user_config_path()), exist_ok=True)
+    with open(config.get_user_config_path(), "w") as outf:
+        outf.write(
+            json.dumps(config.get_default_config_dict(), sort_keys=True, indent=4)
+        )
 
     print("Default configuration copied to %s" % config.get_user_config_path())
 
 
 def main(*args):
     parser = argparse.ArgumentParser()
-    parser.add_argument("--debug", default=False, action='store_true')
-    parser.add_argument('command', choices=COMMANDS.keys())
+    parser.add_argument("--debug", default=False, action="store_true")
+    parser.add_argument("command", choices=COMMANDS.keys())
     args, extra = parser.parse_known_args()
 
     if args.debug:
         import debugpy
+
         debugpy.listen(5678)
         debugpy.wait_for_client()
 
     COMMANDS[args.command](*extra)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main(*sys.argv[1:])

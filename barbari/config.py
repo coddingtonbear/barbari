@@ -85,7 +85,7 @@ class DrillProfileSpec(JobSpec):
 
     @property
     def max_size(self) -> float:
-        return self._data.get("max_size", float('inf'))
+        return self._data.get("max_size", float("inf"))
 
     @property
     def specs(self) -> List[Union[MillHolesJobSpec, DrillHolesJobSpec]]:
@@ -101,9 +101,7 @@ class DrillProfileSpec(JobSpec):
             elif spec_type == "mill_holes":
                 spec_class = MillHolesJobSpec
             else:
-                raise ValueError(
-                    "Unexpected spec type: %s" % spec_type
-                )
+                raise ValueError("Unexpected spec type: %s" % spec_type)
 
             specs.append(spec_class(data))
 
@@ -152,11 +150,7 @@ class Config(object):
 
 def get_user_config_path() -> str:
     return os.path.join(
-        appdirs.user_config_dir(
-            "barbari",
-            "coddingtonbear"
-        ),
-        "config.json"
+        appdirs.user_config_dir("barbari", "coddingtonbear"), "config.json"
     )
 
 
@@ -168,10 +162,7 @@ def get_user_config_dict() -> dict:
 
 
 def get_default_config_path() -> str:
-    return os.path.join(
-        os.path.dirname(__file__),
-        "config.json"
-    )
+    return os.path.join(os.path.dirname(__file__), "config.json")
 
 
 def get_default_config_dict() -> dict:
@@ -181,21 +172,14 @@ def get_default_config_dict() -> dict:
 
 def get_config() -> Config:
     try:
-        logger.info(
-            "Looking for user configuration at %s...",
-            get_user_config_path()
-        )
+        logger.info("Looking for user configuration at %s...", get_user_config_path())
         config_data = get_user_config_dict()
         logger.info(
-            "Loaded user-specified configuration from %s",
-            get_user_config_path()
+            "Loaded user-specified configuration from %s", get_user_config_path()
         )
     except OSError:
         logger.info("User configuration not found.")
         config_data = get_default_config_dict()
-        logger.info(
-            "Loaded default configuration from %s",
-            get_default_config_path()
-        )
+        logger.info("Loaded default configuration from %s", get_default_config_path())
 
     return Config(config_data)

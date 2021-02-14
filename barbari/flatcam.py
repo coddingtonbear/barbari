@@ -24,11 +24,12 @@ class FlatcamProcess(object):
                 "-{key} {value}".format(
                     key=key,
                     value=value,
-                ) for key, value in self._params.items()
-            ]
+                )
+                for key, value in self._params.items()
+            ],
         ]
 
-        return ' '.join(cmd_parts)
+        return " ".join(cmd_parts)
 
     def get_layer_name(self, layer: Union[FlatcamLayer, str]):
         if isinstance(layer, FlatcamLayer):
@@ -46,7 +47,7 @@ class FlatcamCNCJob(FlatcamProcess):
     ):
         extra_kwargs = {}
         if config.multi_depth or config.depth_per_pass:
-            extra_kwargs['dpp'] = config.depth_per_pass
+            extra_kwargs["dpp"] = config.depth_per_pass
 
         return super().__init__(
             "cncjob",
@@ -72,7 +73,7 @@ class FlatcamDrillCNCJob(FlatcamProcess):
         return super().__init__(
             "drillcncjob",
             self.get_layer_name(input_layer),
-            drilled_dias=','.join(str(dia) for dia in drilled_dias),
+            drilled_dias=",".join(str(dia) for dia in drilled_dias),
             drillz=config.drill_z,
             travelz=config.travel_z,
             feedrate_z=config.feed_rate,
@@ -93,8 +94,8 @@ class FlatcamMillHoles(FlatcamProcess):
             "milldrills",
             self.get_layer_name(input_layer),
             tooldia=config.tool_size,
-            milled_dias=','.join(str(dia) for dia in milled_dias),
-            outname=self.get_layer_name(output_layer)
+            milled_dias=",".join(str(dia) for dia in milled_dias),
+            outname=self.get_layer_name(output_layer),
         )
 
 
@@ -136,8 +137,8 @@ class FlatcamWriteGcode(FlatcamProcess):
                     name=name,
                     tool_name=tool_name,
                     tool_size=tool_size,
-                )
-            )
+                ),
+            ),
         )
 
 
@@ -192,12 +193,17 @@ class FlatcamProjectGenerator(object):
         max_y = edge_cuts.bounds[1][1]
 
         hole_offset = (
-            (self.config.alignment_holes.hole_size / 2) +
-            self.config.alignment_holes.hole_offset
-        )
+            self.config.alignment_holes.hole_size / 2
+        ) + self.config.alignment_holes.hole_offset
         holes = [
-            (min_x + hole_offset, min_y - hole_offset, ),
-            (max_x - hole_offset, min_y - hole_offset, ),
+            (
+                min_x + hole_offset,
+                min_y - hole_offset,
+            ),
+            (
+                max_x - hole_offset,
+                min_y - hole_offset,
+            ),
         ]
 
         # This command took some trial and error to figure out --
@@ -209,8 +215,8 @@ class FlatcamProjectGenerator(object):
             FlatcamLayer.EDGE_CUTS.value,
             axis=self.config.alignment_holes.mirror_axis,
             dia=self.config.alignment_holes.hole_size,
-            holes="\"" + ",".join(str(hole) for hole in holes) + "\"",
-            dist=max_y / 2
+            holes='"' + ",".join(str(hole) for hole in holes) + '"',
+            dist=max_y / 2,
         )
         yield FlatcamProcess(
             "mirror",
@@ -227,7 +233,7 @@ class FlatcamProjectGenerator(object):
         yield FlatcamCNCJob(
             self.config.alignment_holes,
             FlatcamLayer.ALIGNMENT_PATH,
-            FlatcamLayer.ALIGNMENT_CNC
+            FlatcamLayer.ALIGNMENT_CNC,
         )
         yield FlatcamWriteGcode(
             FlatcamLayer.ALIGNMENT_CNC,
@@ -296,10 +302,9 @@ class FlatcamProjectGenerator(object):
 
             if not found_spec:
                 logger.error(
-                    "Unable to find drill profile for "
-                    "tool #%s having diameter %s",
+                    "Unable to find drill profile for " "tool #%s having diameter %s",
                     tool_number,
-                    tool.diameter
+                    tool.diameter,
                 )
 
         for process_name, tool_numbers in process_map.items():
@@ -314,9 +319,7 @@ class FlatcamProjectGenerator(object):
                         spec,
                         FlatcamLayer.DRILL,
                         layer_name,
-                        [
-                            tools[n].diameter for n in tool_numbers
-                        ],
+                        [tools[n].diameter for n in tool_numbers],
                     )
                     yield FlatcamWriteGcode(
                         layer_name,
@@ -331,17 +334,11 @@ class FlatcamProjectGenerator(object):
                         spec,
                         FlatcamLayer.DRILL,
                         layer_name,
-                        [
-                            tools[n].diameter for n in tool_numbers
-                        ]
+                        [tools[n].diameter for n in tool_numbers],
                     )
-                    yield FlatcamCNCJob(
-                        spec,
-                        layer_name,
-                        layer_name + '_cnc'
-                    )
+                    yield FlatcamCNCJob(spec, layer_name, layer_name + "_cnc")
                     yield FlatcamWriteGcode(
-                        layer_name + '_cnc',
+                        layer_name + "_cnc",
                         self.gerbers.path,
                         self.counter,
                         "drill_{name}".format(name=process_name),
@@ -363,7 +360,7 @@ class FlatcamProjectGenerator(object):
         yield FlatcamCNCJob(
             self.config.edge_cuts,
             FlatcamLayer.EDGE_CUTS_PATH,
-            FlatcamLayer.EDGE_CUTS_CNC
+            FlatcamLayer.EDGE_CUTS_CNC,
         )
         yield FlatcamWriteGcode(
             FlatcamLayer.EDGE_CUTS_CNC,
@@ -380,7 +377,7 @@ class FlatcamProjectGenerator(object):
             self._alignment_holes,
             self._copper,
             self._drill,
-            self._edge_cuts
+            self._edge_cuts,
         ]
 
         for major_step in major_step_generators:
