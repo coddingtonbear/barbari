@@ -38,6 +38,8 @@ Run your script in flatcam:
 1. From Flatcam, open the "File", "Scripting", "Run Script".  ![](https://coddingtonbear-public.s3-us-west-2.amazonaws.com/github/barbari/instructions_flatcam_menu.png)
 2. Select the script generated in `/path/to/gerber/exports`.
 
+Run your generated gcode in whatever tool you use for sending gcode to your mill.  Note that the files will be stored in `/path/to/gerber/exports` and are expected to be run in the order indicated by their file names.
+
 ## Configuration
 
 By default, Barbari is configured to generate fairly conservatively
