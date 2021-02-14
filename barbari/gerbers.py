@@ -1,5 +1,7 @@
 import logging
 import os
+import re
+from typing import Dict
 
 import gerber
 
@@ -14,6 +16,14 @@ class UnknownLayerType(ValueError):
 
 
 class GerberProject(object):
+    LAYER_NAME_PATTERNS: Dict[LayerType, re.Pattern] = {
+        LayerType.B_CU: re.compile('.*\-B(?:[._])Cu\..*'),
+        LayerType.F_CU: re.compile('.*\-F(?:[._])Cu\..*'),
+        LayerType.EDGE_CUTS: re.compile('.*\-Edge(?:[._])Cuts'),
+        LayerType.ALIGNMENT: re.compile('.*-Alignment\..*'),
+        LayerType.DRILL: re.compile('.*\.drl$')
+    }
+
     def __init__(self, path):
         self._path = path
         self._layers = {}
@@ -25,16 +35,9 @@ class GerberProject(object):
         return self._path
 
     def detect_layer_type(self, filename: str, layer):
-        if '-B.Cu.' in filename:
-            return LayerType.B_CU
-        elif '-F.Cu.' in filename:
-            return LayerType.F_CU
-        elif '-Edge.Cuts.' in filename:
-            return LayerType.EDGE_CUTS
-        elif '-Alignment.' in filename:
-            return LayerType.ALIGNMENT
-        elif filename.endswith('.drl'):
-            return LayerType.DRILL
+        for layer_type, pattern in self.LAYER_NAME_PATTERNS.items():
+            if pattern.match(filename):
+                return layer_type
 
         raise UnknownLayerType(
             "Unable to guess layer position for {}".format(filename)

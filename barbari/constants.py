@@ -6,6 +6,7 @@ class LayerType(enum.Enum):
     F_CU = 'f_cu'
     EDGE_CUTS = 'edge_cuts'
     DRILL = 'drill'
+    ALIGNMENT = 'alignment'
 
 
 class FlatcamLayer(enum.Enum):
