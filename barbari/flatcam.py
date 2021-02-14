@@ -44,16 +44,19 @@ class FlatcamCNCJob(FlatcamProcess):
         input_layer: Union[FlatcamLayer, str],
         output_layer: Union[FlatcamLayer, str],
     ):
+        extra_kwargs = {}
+        if config.multi_depth or config.depth_per_pass:
+            extra_kwargs['dpp'] = config.depth_per_pass
+
         return super().__init__(
             "cncjob",
             self.get_layer_name(input_layer),
             z_cut=config.cut_z,
             z_move=config.travel_z,
             feedrate=config.feed_rate,
-            tooldia=config.tool_size,
+            dia=config.tool_size,
             spindlespeed=config.spindle_speed,
-            multidepth=config.multi_depth,
-            depthperpass=config.depth_per_pass,
+            **extra_kwargs,
             outname=self.get_layer_name(output_layer)
         )
 
@@ -64,15 +67,15 @@ class FlatcamDrillCNCJob(FlatcamProcess):
         config: Config,
         input_layer: Union[FlatcamLayer, str],
         output_layer: Union[FlatcamLayer, str],
-        tool_ids: List[int],
+        drilled_dias: List[float],
     ):
         return super().__init__(
             "drillcncjob",
             self.get_layer_name(input_layer),
-            tools=','.join(str(id) for id in tool_ids),
+            drilled_dias=','.join(str(dia) for dia in drilled_dias),
             drillz=config.drill_z,
             travelz=config.travel_z,
-            feedrate=config.feed_rate,
+            feedrate_z=config.feed_rate,
             spindlespeed=config.spindle_speed,
             outname=self.get_layer_name(output_layer),
         )
@@ -84,16 +87,13 @@ class FlatcamMillHoles(FlatcamProcess):
         config: Config,
         input_layer: Union[FlatcamLayer, str],
         output_layer: Union[FlatcamLayer, str],
-        tool_ids: List[int] = None,
+        milled_dias: List[float],
     ):
-        if tool_ids is None:
-            tool_ids = [1]
-
         return super().__init__(
-            "millholes",
+            "milldrills",
             self.get_layer_name(input_layer),
-            tools=','.join(str(t) for t in tool_ids),
             tooldia=config.tool_size,
+            milled_dias=','.join(str(dia) for dia in milled_dias),
             outname=self.get_layer_name(output_layer)
         )
 
@@ -216,12 +216,13 @@ class FlatcamProjectGenerator(object):
             "mirror",
             FlatcamLayer.B_CU.value,
             axis=self.config.alignment_holes.mirror_axis,
-            dist=max_y / 2
+            box="edge_cuts",
         )
         yield FlatcamMillHoles(
             self.config.alignment_holes,
             FlatcamLayer.ALIGNMENT,
-            FlatcamLayer.ALIGNMENT_PATH
+            FlatcamLayer.ALIGNMENT_PATH,
+            milled_dias=[self.config.alignment_holes.hole_size],
         )
         yield FlatcamCNCJob(
             self.config.alignment_holes,
@@ -313,7 +314,9 @@ class FlatcamProjectGenerator(object):
                         spec,
                         FlatcamLayer.DRILL,
                         layer_name,
-                        tool_numbers
+                        [
+                            tools[n].diameter for n in tool_numbers
+                        ],
                     )
                     yield FlatcamWriteGcode(
                         layer_name,
@@ -328,7 +331,9 @@ class FlatcamProjectGenerator(object):
                         spec,
                         FlatcamLayer.DRILL,
                         layer_name,
-                        tool_numbers,
+                        [
+                            tools[n].diameter for n in tool_numbers
+                        ]
                     )
                     yield FlatcamCNCJob(
                         spec,
