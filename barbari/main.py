@@ -67,8 +67,14 @@ def generate_config(*args):
 
 def main(*args):
     parser = argparse.ArgumentParser()
+    parser.add_argument("--debug", default=False, action='store_true')
     parser.add_argument('command', choices=COMMANDS.keys())
     args, extra = parser.parse_known_args()
+
+    if args.debug:
+        import debugpy
+        debugpy.listen(5678)
+        debugpy.wait_for_client()
 
     COMMANDS[args.command](*extra)
 
