@@ -6,7 +6,7 @@ I use a cheap 1610 CNC machine, KiCad, and Flatcam for milling PCBs, but remembe
 
 ## Requirements
 
-- Flatcam: `Beta` branch (tested with 8.884)
+- Flatcam: `Beta` branch (tested with 8.994)
 
 ## Use
 
@@ -14,7 +14,7 @@ Run with flatcam via:
 
 ```
     barbari build /path/to/gerber/exports
-    flatcam --shellfile=/path/to/gerber/exports/generate_gcode.FlatScript
+    python FlatCam.py --shellfile=/path/to/gerber/exports/generate_gcode.FlatScript
 ```
 
 ## Configuration
