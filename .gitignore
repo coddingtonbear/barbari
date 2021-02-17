@@ -6,3 +6,4 @@ lib/*
 .vscode/*
 __pycache__
 *.egg-info
+*.pyc
