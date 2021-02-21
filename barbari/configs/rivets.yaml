@@ -1,0 +1,13 @@
+description: |
+  The standard configuration @coddingtonbear
+  uses when milling his PCBs.  This uses
+  copper wire vias, 10mm deep alignment holes, [voltera 1mm rivets](https://www.voltera.io/store/consumables/rivets-1-0mm)
+  for holes near 1mm, and milled holes
+  larger than 1.1mm.
+include:
+  - ./default_isolation_routing.yaml
+  - ./default_alignment_holes.yaml
+  - ./copper_wire_vias.yaml
+  - ./drilled_pth_04_11.yaml
+  - ./milled_11.yaml
+  - ./default_edge_cuts.yaml

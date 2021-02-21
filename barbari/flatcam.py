@@ -1,9 +1,9 @@
 import logging
 import os
-from typing import Iterable, List, Union
+from typing import Dict, Iterable, List, Union
 
 from .gerbers import GerberProject
-from .config import Config, DrillHolesJobSpec, MillHolesJobSpec
+from .config import Config, DrillHolesJobSpec, IsolationRoutingJobSpec, JobSpec, MillHolesJobSpec
 from .constants import LayerType, FlatcamLayer
 
 
@@ -41,7 +41,7 @@ class FlatcamProcess(object):
 class FlatcamCNCJob(FlatcamProcess):
     def __init__(
         self,
-        config: Config,
+        config: JobSpec,
         input_layer: Union[FlatcamLayer, str],
         output_layer: Union[FlatcamLayer, str],
     ):
@@ -65,7 +65,7 @@ class FlatcamCNCJob(FlatcamProcess):
 class FlatcamDrillCNCJob(FlatcamProcess):
     def __init__(
         self,
-        config: Config,
+        config: DrillHolesJobSpec,
         input_layer: Union[FlatcamLayer, str],
         output_layer: Union[FlatcamLayer, str],
         drilled_dias: List[float],
@@ -85,7 +85,7 @@ class FlatcamDrillCNCJob(FlatcamProcess):
 class FlatcamMillHoles(FlatcamProcess):
     def __init__(
         self,
-        config: Config,
+        config: MillHolesJobSpec,
         input_layer: Union[FlatcamLayer, str],
         output_layer: Union[FlatcamLayer, str],
         milled_dias: List[float],
@@ -102,7 +102,7 @@ class FlatcamMillHoles(FlatcamProcess):
 class FlatcamIsolate(FlatcamProcess):
     def __init__(
         self,
-        config: Config,
+        config: IsolationRoutingJobSpec,
         input_layer: Union[FlatcamLayer, str],
         output_layer: Union[FlatcamLayer, str],
     ):
@@ -183,6 +183,9 @@ class FlatcamProjectGenerator(object):
                 )
 
     def _alignment_holes(self) -> Iterable[FlatcamProcess]:
+        if not self.config.alignment_holes:
+            return
+
         layers = self.gerbers.get_layers()
 
         edge_cuts = layers[LayerType.EDGE_CUTS]
@@ -245,6 +248,9 @@ class FlatcamProjectGenerator(object):
         )
 
     def _copper(self) -> Iterable[FlatcamProcess]:
+        if not self.config.isolation_routing:
+            return
+
         yield FlatcamIsolate(
             self.config.isolation_routing,
             FlatcamLayer.B_CU,
@@ -285,11 +291,11 @@ class FlatcamProjectGenerator(object):
     def _drill(self) -> Iterable[FlatcamProcess]:
         tools = self.gerbers.get_layers()[LayerType.DRILL].tools
 
-        process_map = {}
+        process_map: Dict[str, List[int]] = {}
         for tool_number, tool in tools.items():
             found_spec = False
-            for name, spec in self.config.drill.items():
-                if spec.min_size < tool.diameter <= spec.max_size:
+            for name, dspec in self.config.drill.items():
+                if dspec.min_size < tool.diameter <= dspec.max_size:
                     process_map.setdefault(name, []).append(tool_number)
                     found_spec = True
                     logger.debug(
@@ -349,6 +355,9 @@ class FlatcamProjectGenerator(object):
                     raise ValueError("Unhandled spec!")
 
     def _edge_cuts(self) -> Iterable[FlatcamProcess]:
+        if not self.config.edge_cuts:
+            return
+
         yield FlatcamProcess(
             "cutout",
             FlatcamLayer.EDGE_CUTS.value,

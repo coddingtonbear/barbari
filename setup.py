@@ -43,9 +43,16 @@ setup(
     ],
     install_requires=requirements,
     packages=find_packages(),
+    include_package_data=True,
     entry_points={
         'console_scripts': [
             'barbari = barbari.main:main'
         ],
+        'barbari.commands': [
+            'generate-config = barbari.commands.generate_config:Command',
+            'build = barbari.commands.build:Command',
+            'list-configs = barbari.commands.list_configs:Command',
+            'display-config = barbari.commands.display_config:Command',
+        ]
     },
 )

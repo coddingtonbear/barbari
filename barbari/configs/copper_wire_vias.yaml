@@ -1,0 +1,11 @@
+drill_profiles:
+  via:
+    max_size: 0.4
+    specs:
+    - type: cnc_drill
+      params:
+        tool_size: 0.4
+        drill_z: -2.5
+        travel_z: 2
+        feed_rate: 50
+        spindle_speed: 12000

@@ -1,0 +1,19 @@
+drill_profiles:
+  pth:
+    min_size: 0.4
+    max_size: 1.1
+    specs:
+    - type: cnc_drill
+      params:
+        tool_size: 0.7
+        drill_z: -2.5
+        travel_z: 2
+        feed_rate: 50
+        spindle_speed: 12000
+    - type: cnc_drill
+      params:
+        tool_size: 1.5
+        drill_z: -2.5
+        travel_z: 2
+        feed_rate: 50
+        spindle_speed: 8000

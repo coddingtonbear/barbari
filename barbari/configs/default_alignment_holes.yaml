@@ -1,0 +1,10 @@
+alignment_holes:
+  hole_size: 3.4
+  hole_offset: 1
+  tool_size: 1.5
+  cut_z: -10
+  travel_z: 2
+  feed_rate: 100
+  spindle_speed: 12000
+  multi_depth: true
+  depth_per_pass: 0.2

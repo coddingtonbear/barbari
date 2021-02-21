@@ -1,0 +1,12 @@
+description: |
+  Simple configuration using copper wire vias,
+  10mm deep alignment holes, and drilled 1mm
+  holes, and milled holes larger than 1mm, and
+  and edge cuts.
+include:
+  - ./default_isolation_routing.yaml
+  - ./default_alignment_holes.yaml
+  - ./copper_wire_vias.yaml
+  - ./drilled_04_10.yaml
+  - ./milled_10.yaml
+  - ./default_edge_cuts.yaml

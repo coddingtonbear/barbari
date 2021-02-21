@@ -1,68 +1,38 @@
 import argparse
-import json
 import logging
-import os
 import sys
 
-from . import config, gerbers, flatcam
+from rich.console import Console
+from rich.traceback import install as enable_rich_traceback
+
+from . import config, exceptions
+from .commands import get_installed_commands
 
 
 logger = logging.getLogger(__name__)
 
 
-COMMANDS = {}
-
-
-def command(fn):
-    global COMMANDS
-
-    COMMANDS[fn.__name__] = fn
-
-
-@command
-def build(*args):
-    parser = argparse.ArgumentParser()
-    parser.add_argument("directory")
-    parser.add_argument("--verbose", default=False, action="store_true")
-    args = parser.parse_args(args)
-
-    if args.verbose:
-        logging.basicConfig(level=logging.DEBUG)
-
-    project = gerbers.GerberProject(os.path.abspath(os.path.expanduser(args.directory)))
-    configuration = config.get_config()
-    generator = flatcam.FlatcamProjectGenerator(project, configuration)
-
-    output_file = os.path.join(
-        args.directory,
-        "generate_gcode.FlatScript",
-    )
-    processes = generator.get_cnc_processes()
-    with open(output_file, "w") as outf:
-        for process in processes:
-            outf.write(str(process))
-            outf.write("\n")
-
-
-@command
-def generate_config(*args):
-    parser = argparse.ArgumentParser()
-    parser.parse_args(args)
-
-    os.makedirs(os.path.dirname(config.get_user_config_path()), exist_ok=True)
-    with open(config.get_user_config_path(), "w") as outf:
-        outf.write(
-            json.dumps(config.get_default_config_dict(), sort_keys=True, indent=4)
-        )
-
-    print("Default configuration copied to %s" % config.get_user_config_path())
-
-
 def main(*args):
+    enable_rich_traceback()
+
+    commands = get_installed_commands()
+
     parser = argparse.ArgumentParser()
     parser.add_argument("--debug", default=False, action="store_true")
-    parser.add_argument("command", choices=COMMANDS.keys())
-    args, extra = parser.parse_known_args()
+    subparsers = parser.add_subparsers(dest='command')
+    subparsers.required = True
+
+    for cmd_name, cmd_class in commands.items():
+        parser_kwargs = {}
+
+        cmd_help = cmd_class.get_help()
+        if cmd_help:
+            parser_kwargs["help"] = cmd_help
+
+        subparser = subparsers.add_parser(cmd_name, **parser_kwargs)
+        cmd_class._add_arguments(subparser)
+
+    args = parser.parse_args()
 
     if args.debug:
         import debugpy
@@ -70,7 +40,16 @@ def main(*args):
         debugpy.listen(5678)
         debugpy.wait_for_client()
 
-    COMMANDS[args.command](*extra)
+    console = Console()
+
+    try:
+        commands[args.command](args).handle()
+    except exceptions.BarbariError as e:
+        console.print(f"[red]{e}[/red]")
+    except exceptions.BarbariUserError as e:
+        console.print(f"[yellow]{e}[/yellow]")
+    except Exception:
+        console.print_exception()
 
 
 if __name__ == "__main__":

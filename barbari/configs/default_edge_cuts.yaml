@@ -1,0 +1,11 @@
+edge_cuts:
+  tool_size: 1.5
+  margin: 0
+  gap_size: 1
+  gaps: lr
+  cut_z: -2.5
+  travel_z: 2
+  feed_rate: 100
+  spindle_speed: 12000
+  multi_depth: true
+  depth_per_pass: 0.2

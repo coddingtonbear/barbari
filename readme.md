@@ -30,8 +30,10 @@ your board. ![](https://coddingtonbear-public.s3-us-west-2.amazonaws.com/github/
 Generate your flatcam script:
 
 ```
-barbari build /path/to/gerber/exports
+barbari build /path/to/gerber/exports simple
 ```
+
+"simple" in the above string is the name of the milling configuration to use for the generated flatcam script. Alternative options exist -- see "Configuration" below for details.
 
 Run your script in flatcam:
 
@@ -42,9 +44,8 @@ Run your generated gcode in whatever tool you use for sending gcode to your mill
 
 ## Configuration
 
-By default, Barbari is configured to generate fairly conservatively
-millable PCBs, and makes a handful of assumptions about how you might
-want to drill your PCB; you can override these configurations by
+Barbari comes packaged with a couple milling profiles for two fairly conservative sets of milling operations; more than likely, the "simple" profile will be enough for you, but if it's not, you can either use one of the other packaged configuration settings (see `list-configs` and `display-config` to see their details) or create your own by exporting an example configuration and modifying it (see `generate-config`).
 
-1. Generating a configuration file by running `barbari generate_config`
-2. Editing the file at the path displayed.
+Note that Barbari configuration files can be layered atop one another by providing more than a single configuration file.  Properties defined in later configuration files take precedence over properties in earlier ones, and drilling profiles are merged together.
+
+See `--help` for more information.

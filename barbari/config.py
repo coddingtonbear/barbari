@@ -1,9 +1,14 @@
-import json
+from __future__ import annotations
+
+import copy
 import logging
 import os
-from typing import Dict, List, Union
+from typing import Dict, Iterable, List, Optional, Type, Union
 
 import appdirs
+import yaml
+
+from . import exceptions
 
 
 logger = logging.getLogger(__name__)
@@ -88,13 +93,13 @@ class DrillProfileSpec(JobSpec):
         return self._data.get("max_size", float("inf"))
 
     @property
-    def specs(self) -> List[Union[MillHolesJobSpec, DrillHolesJobSpec]]:
+    def specs(self) -> Iterable[Union[MillHolesJobSpec, DrillHolesJobSpec]]:
         specs = []
 
         for spec_data in self._data["specs"]:
             data = spec_data["params"]
             spec_type = spec_data["type"]
-            spec_class = None
+            spec_class: Union[Type[MillHolesJobSpec], Type[DrillHolesJobSpec]]
 
             if spec_type == "cnc_drill":
                 spec_class = DrillHolesJobSpec
@@ -126,60 +131,140 @@ class Config(object):
     def __init__(self, data):
         self._data = data
 
+    @classmethod
+    def from_file(self, path) -> Config:
+        configs: List[Config] = []
+
+        with open(path, 'r') as inf:
+            loaded = yaml.safe_load(inf)
+
+        includes = loaded.pop('include', [])
+
+        configs.append(Config(loaded))
+
+        config_dir = os.path.dirname(path)
+        for include in includes:
+            if os.path.splitext(include)[1] in (".yaml", ".yml"):
+                include_path = os.path.join(config_dir, include)
+
+                configs.append(Config.from_file(include_path))
+            else:
+                configs.append(get_config_by_name(include))
+
+        merged = sum(configs, Config({}))
+
+        # By default, we strip descriptions when merging multiple configs;
+        # but that's just because we can't make that sane when a user is
+        # merging configs at the command-line on an ad-hoc basis; in this
+        # particular case, the loaded config *does* know what files are
+        # being overlayed, so we should assume its description is OK.
+        if 'description' in loaded:
+            merged._data['description'] = loaded['description']
+
+        return merged
+
     @property
-    def alignment_holes(self) -> MillHolesJobSpec:
+    def description(self) -> Optional[str]:
+        if 'description' in self._data:
+            return self._data['description']
+
+        return None
+
+    @property
+    def alignment_holes(self) -> Optional[AlignmentHolesJobSpec]:
+        if 'alignment_holes' not in self._data:
+            return None
         return AlignmentHolesJobSpec(self._data["alignment_holes"])
 
     @property
-    def isolation_routing(self) -> IsolationRoutingJobSpec:
+    def isolation_routing(self) -> Optional[IsolationRoutingJobSpec]:
+        if 'isolation_routing' not in self._data:
+            return None
         return IsolationRoutingJobSpec(self._data["isolation_routing"])
 
     @property
-    def edge_cuts(self) -> BoardCutoutJobSpec:
+    def edge_cuts(self) -> Optional[BoardCutoutJobSpec]:
+        if 'edge_cuts' not in self._data:
+            return None
         return BoardCutoutJobSpec(self._data["edge_cuts"])
 
     @property
     def drill(self) -> Dict[str, DrillProfileSpec]:
         drill_range_specs = {}
 
-        for name, data in self._data["drill_profiles"].items():
+        for name, data in self._data.get("drill_profiles", {}).items():
             drill_range_specs[name] = DrillProfileSpec(data)
 
         return drill_range_specs
 
+    def __add__(self, other: Config) -> Config:
+        left = copy.deepcopy(self._data)
+        right = other._data
 
-def get_user_config_path() -> str:
-    return os.path.join(
-        appdirs.user_config_dir("barbari", "coddingtonbear"), "config.json"
-    )
+        overwrite = ['alignment_holes', 'isolation_routing', 'edge_cuts']
+        merge = ['drill_profiles']
+
+        for key in overwrite:
+            if key in right:
+                left[key] = right[key]
+
+        for key in merge:
+            if key in right:
+                left.setdefault(key, {}).update(right[key])
+
+        if 'description' in left:
+            del left['description']
+
+        return Config(left)
 
 
-def get_user_config_dict() -> dict:
-    path = get_user_config_path()
+def get_user_config_dir() -> str:
+    return appdirs.user_config_dir("barbari", "coddingtonbear")
 
-    with open(path, "r") as inf:
-        return json.load(inf)
+
+def get_default_config_dir() -> str:
+    return os.path.join(os.path.dirname(__file__), "configs")
 
 
 def get_default_config_path() -> str:
-    return os.path.join(os.path.dirname(__file__), "config.json")
+    return os.path.join(get_default_config_dir(), "example.yaml")
 
 
-def get_default_config_dict() -> dict:
-    with open(get_default_config_path(), "r") as inf:
-        return json.load(inf)
+def _get_config_path_map() -> Dict[str, str]:
+    configs: Dict[str, str] = {}
+
+    directories = [
+        get_default_config_dir(),
+        get_user_config_dir()
+    ]
+
+    for directory in directories:
+        for filename in os.listdir(directory):
+            name, ext  = os.path.splitext(filename)
+
+            if ext in (".yaml", ".yml"):
+                configs[name] = os.path.join(directory, filename)
+
+    return configs
 
 
-def get_config() -> Config:
+def get_available_configs() -> List[str]:
+    return list(_get_config_path_map().keys())
+
+
+def get_config_by_name(name: str) -> Config:
     try:
-        logger.info("Looking for user configuration at %s...", get_user_config_path())
-        config_data = get_user_config_dict()
-        logger.info(
-            "Loaded user-specified configuration from %s", get_user_config_path()
-        )
-    except OSError:
-        logger.info("User configuration not found.")
-        config_data = get_default_config_dict()
-        logger.info("Loaded default configuration from %s", get_default_config_path())
+        config_path = _get_config_path_map()[name]
+    except KeyError:
+        raise exceptions.ConfigNotFound(f"Config '{name}' not found")
 
-    return Config(config_data)
+    return Config.from_file(config_path)
+
+
+def get_merged_config(names: List[str]) -> Config:
+    configs: List[Config] = []
+
+    for config_name in names:
+        configs.append(get_config_by_name(config_name))
+
+    return sum(configs, Config({}))
