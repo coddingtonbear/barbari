@@ -40,7 +40,7 @@ drill_profiles:
         drill_z: -2.5
         travel_z: 2
         feed_rate: 50
-        spindle_speed: 8000
+        spindle_speed: 12000
   milled:
     min_size: 1.0
     specs:
