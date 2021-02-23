@@ -46,7 +46,7 @@ class JobSpec(object):
 
     @property
     def depth_per_pass(self) -> float:
-        return self._data["depth_per_pass"]
+        return self._data.get("depth_per_pass")
 
 
 class MillHolesJobSpec(JobSpec):
