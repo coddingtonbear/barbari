@@ -1,6 +1,6 @@
 isolation_routing:
   tool_size: 0.18
-  passes: 3
+  passes: 5
   pass_overlap: 0.5
   cut_z: -0.2
   travel_z: 2
