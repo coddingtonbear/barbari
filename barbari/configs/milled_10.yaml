@@ -1,4 +1,4 @@
-drill_profiles:
+drill:
   milled:
     min_size: 1.0
     specs:

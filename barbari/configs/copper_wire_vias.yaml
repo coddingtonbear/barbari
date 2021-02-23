@@ -1,4 +1,4 @@
-drill_profiles:
+drill:
   via:
     max_size: 0.4
     specs:

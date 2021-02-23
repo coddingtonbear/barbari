@@ -3,7 +3,7 @@ from __future__ import annotations
 import copy
 import logging
 import os
-from typing import Dict, Iterable, List, Optional, Type, Union
+from typing import cast, Dict, Iterable, List, Optional, Type, Union
 
 import appdirs
 import yaml
@@ -53,6 +53,10 @@ class MillHolesJobSpec(JobSpec):
     pass
 
 
+class MillSlotsJobSpec(MillHolesJobSpec):
+    pass
+
+
 class IsolationRoutingJobSpec(JobSpec):
     @property
     def passes(self) -> float:
@@ -83,7 +87,7 @@ class DrillHolesJobSpec(JobSpec):
         return self._data.get("drill_z")
 
 
-class DrillProfileSpec(JobSpec):
+class ToolProfileSpec(JobSpec):
     @property
     def min_size(self) -> float:
         # Exclusive
@@ -111,12 +115,44 @@ class DrillProfileSpec(JobSpec):
                 spec_class = DrillHolesJobSpec
             elif spec_type == "mill_holes":
                 spec_class = MillHolesJobSpec
+            elif spec_type == "mill_slots":
+                spec_class = MillSlotsJobSpec
             else:
-                raise ValueError("Unexpected spec type: %s" % spec_type)
+                raise exceptions.InvalidConfiguration(
+                    "Unexpected spec type: %s" % spec_type
+                )
 
             specs.append(spec_class(data))
 
         return specs
+
+
+class DrillProfileSpec(ToolProfileSpec):
+    @property
+    def specs(self) -> Iterable[Union[MillHolesJobSpec, DrillHolesJobSpec]]:
+        specs = super().specs
+
+        for spec in specs:
+            if not isinstance(spec, (DrillHolesJobSpec, MillHolesJobSpec)):
+                raise exceptions.InvalidConfiguration(
+                    "Drills support only 'cnc_drill' and 'mill_holes' specifications."
+                )
+
+        return specs
+
+
+class SlotProfileSpec(ToolProfileSpec):
+    @property
+    def specs(self) -> Iterable[MillSlotsJobSpec]:
+        specs = super().specs
+
+        for spec in specs:
+            if not isinstance(spec, MillSlotsJobSpec):
+                raise exceptions.InvalidConfiguration(
+                    "Slots support only 'mill_slots' specifications."
+                )
+
+        yield from cast(Iterable[MillSlotsJobSpec], specs)
 
 
 class AlignmentHolesJobSpec(MillHolesJobSpec):
@@ -198,8 +234,17 @@ class Config(object):
     def drill(self) -> Dict[str, DrillProfileSpec]:
         drill_range_specs = {}
 
-        for name, data in self._data.get("drill_profiles", {}).items():
+        for name, data in self._data.get("drill", {}).items():
             drill_range_specs[name] = DrillProfileSpec(data)
+
+        return drill_range_specs
+
+    @property
+    def slot(self) -> Dict[str, SlotProfileSpec]:
+        drill_range_specs = {}
+
+        for name, data in self._data.get("slot", {}).items():
+            drill_range_specs[name] = SlotProfileSpec(data)
 
         return drill_range_specs
 
@@ -208,7 +253,7 @@ class Config(object):
         right = other._data
 
         overwrite = ['alignment_holes', 'isolation_routing', 'edge_cuts']
-        merge = ['drill_profiles']
+        merge = ['drill', 'slot']
 
         for key in overwrite:
             if key in right:
@@ -246,7 +291,7 @@ def _get_config_path_map() -> Dict[str, str]:
 
     for directory in directories:
         for filename in os.listdir(directory):
-            name, ext  = os.path.splitext(filename)
+            name, ext = os.path.splitext(filename)
 
             if ext in (".yaml", ".yml"):
                 configs[name] = os.path.join(directory, filename)

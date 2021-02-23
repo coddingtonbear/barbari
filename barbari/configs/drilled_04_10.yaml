@@ -1,4 +1,4 @@
-drill_profiles:
+drill:
   drilled:
     min_size: 0.4
     max_size: 1.0

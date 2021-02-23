@@ -48,8 +48,9 @@ Roughly, the process is handled via the following steps:
 
 1. Milling Alignment holes (`alignment_holes` in the configuration).  These are used to allow you to perfectly flip your PCB for milling on both sides.
 2. Isolation routing (`isolation_routing` in the configuration).  This will route your PCB's traces on both sides of the board.  First, the back of your PCB (`B.Cu`) is routed, then the front (`F.Cu`).  You'll want to flip over your board, using the drilled alignment holes in between these two steps.
-3. Drilling (`drill_profiles` in the configuration).
-4. Edge cuts (`edge_cuts` in the configuration). This is for cutting your PCB out of the larger piece of copper-clad board.
+3. Drilling (`drill` in the configuration).
+4. Milling slots (`slot` in the configuration).
+5. Edge cuts (`edge_cuts` in the configuration). This is for cutting your PCB out of the larger piece of copper-clad board.
 
 ## Configuration
 
@@ -105,12 +106,12 @@ isolation_routing:
   depth_per_pass: 0.1
 ```
 
-#### `drill_profiles`
+#### `drill`
 
 You probably don't have as many bits on hand as a PCB board house will; so these sections are here to allow you to group multiple drill sizes into sets of processes.  For example, if you had only three bits -- a 0.4mm drill for vias, a 1.0mm drill for most through-holes, and a 1.0mm mill for everything bigger than that, you could have a section like this:
 
 ```yaml
-drill_profiles:
+drill:
   via:
     max_size: 0.4
     specs:

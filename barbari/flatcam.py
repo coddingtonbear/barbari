@@ -1,9 +1,11 @@
 import logging
 import os
-from typing import Dict, Iterable, List, Optional, Union
+from typing import Callable, Dict, Iterable, List, Mapping, Optional, Union
+
+from gerber import excellon
 
 from .gerbers import GerberProject
-from .config import Config, DrillHolesJobSpec, DrillProfileSpec, IsolationRoutingJobSpec, JobSpec, MillHolesJobSpec
+from .config import Config, DrillHolesJobSpec, IsolationRoutingJobSpec, JobSpec, MillHolesJobSpec, MillSlotsJobSpec, ToolProfileSpec
 from .constants import LayerType, FlatcamLayer
 
 
@@ -99,6 +101,23 @@ class FlatcamMillHoles(FlatcamProcess):
         )
 
 
+class FlatcamMillSlots(FlatcamProcess):
+    def __init__(
+        self,
+        config: MillSlotsJobSpec,
+        input_layer: Union[FlatcamLayer, str],
+        output_layer: Union[FlatcamLayer, str],
+        milled_dias: List[float],
+    ):
+        return super().__init__(
+            "millslots",
+            self.get_layer_name(input_layer),
+            tooldia=config.tool_size,
+            milled_dias=",".join(str(dia) for dia in milled_dias),
+            outname=self.get_layer_name(output_layer),
+        )
+
+
 class FlatcamIsolate(FlatcamProcess):
     def __init__(
         self,
@@ -186,6 +205,8 @@ class FlatcamProjectGenerator(object):
         if not self.config.alignment_holes:
             return
 
+        logger.debug("Processing alignment holes...")
+
         layers = self.gerbers.get_layers()
 
         edge_cuts = layers[LayerType.EDGE_CUTS]
@@ -251,6 +272,8 @@ class FlatcamProjectGenerator(object):
         if not self.config.isolation_routing:
             return
 
+        logger.debug("Processing isolation routing...")
+
         yield FlatcamIsolate(
             self.config.isolation_routing,
             FlatcamLayer.B_CU,
@@ -288,7 +311,7 @@ class FlatcamProjectGenerator(object):
             self.config.isolation_routing.tool_size,
         )
 
-    def _drill_spec_is_more_specific(self, tool, left: Optional[DrillProfileSpec], right: DrillProfileSpec):
+    def _tool_spec_is_more_specific(self, tool, left: Optional[ToolProfileSpec], right: ToolProfileSpec):
         if not left:
             return True
         if tool.diameter in right.sizes and tool.diameter not in left.sizes:
@@ -298,24 +321,48 @@ class FlatcamProjectGenerator(object):
 
         return False
 
-    def _get_spec_for_drill(self, tool, specs: Dict[str, DrillProfileSpec]) -> Optional[str]:
+    def _get_spec_for_tool(self, tool, specs: Mapping[str, ToolProfileSpec]) -> Optional[str]:
         selected: Optional[str] = None
 
         for spec_name, spec in specs.items():
             if (spec.min_size < tool.diameter <= spec.max_size) or (
                 tool.diameter in spec.sizes
             ):
-                if self._drill_spec_is_more_specific(tool, specs[selected] if selected else None, spec):
+                if self._tool_spec_is_more_specific(tool, specs[selected] if selected else None, spec):
                     selected = spec_name
 
         return selected
 
+    def _get_tool_hit_count(self, layer: excellon.ExcellonFile, tool: excellon.ExcellonTool, slot: bool = False):
+        counter = 0
+
+        expected_class = excellon.DrillSlot if slot else excellon.DrillHit
+
+        for hit in layer.hits:
+            if isinstance(hit, expected_class) and hit.tool == tool:
+                counter += 1
+
+        return counter
+
     def _drill(self) -> Iterable[FlatcamProcess]:
-        tools = self.gerbers.get_layers()[LayerType.DRILL].tools
+        if not self.config.drill:
+            return
+
+        logger.debug("Processing drills...")
+
+        layer: excellon.ExcellonFile = self.gerbers.get_layers()[LayerType.DRILL]
 
         process_map: Dict[str, List[int]] = {}
-        for tool_number, tool in tools.items():
-            selected_spec = self._get_spec_for_drill(tool, self.config.drill)
+        for tool_number, tool in layer.tools.items():
+            if not self._get_tool_hit_count(layer, tool):
+                logger.debug(
+                    "Tool %s (%s dia) has no drill hits.",
+                    tool_number,
+                    tool.diameter,
+                )
+                continue
+
+            selected_spec = self._get_spec_for_tool(tool, self.config.drill)
             if selected_spec:
                 logger.debug(
                     "Assigning tool %s (%s dia) to drill process %s.",
@@ -323,6 +370,7 @@ class FlatcamProjectGenerator(object):
                     tool.diameter,
                     selected_spec,
                 )
+                process_map.setdefault(selected_spec, []).append(tool_number)
             else:
                 logger.error(
                     "Unable to find compatible drill profile for tool "
@@ -343,7 +391,7 @@ class FlatcamProjectGenerator(object):
                         spec,
                         FlatcamLayer.DRILL,
                         layer_name,
-                        [tools[n].diameter for n in tool_numbers],
+                        [layer.tools[n].diameter for n in tool_numbers],
                     )
                     yield FlatcamWriteGcode(
                         layer_name,
@@ -358,7 +406,7 @@ class FlatcamProjectGenerator(object):
                         spec,
                         FlatcamLayer.DRILL,
                         layer_name,
-                        [tools[n].diameter for n in tool_numbers],
+                        [layer.tools[n].diameter for n in tool_numbers],
                     )
                     yield FlatcamCNCJob(spec, layer_name, layer_name + "_cnc")
                     yield FlatcamWriteGcode(
@@ -372,9 +420,71 @@ class FlatcamProjectGenerator(object):
                 else:
                     raise ValueError("Unhandled spec!")
 
+    def _slot(self) -> Iterable[FlatcamProcess]:
+        if not self.config.slot:
+            return
+
+        logger.debug("Processing slots...")
+
+        layer: excellon.ExcellonFile = self.gerbers.get_layers()[LayerType.DRILL]
+
+        process_map: Dict[str, List[int]] = {}
+        for tool_number, tool in layer.tools.items():
+            if not self._get_tool_hit_count(layer, tool, slot=True):
+                logger.debug(
+                    "Tool %s (%s dia) has no slot hits.",
+                    tool_number,
+                    tool.diameter,
+                )
+                continue
+
+            selected_spec = self._get_spec_for_tool(tool, self.config.slot)
+            if selected_spec:
+                logger.debug(
+                    "Assigning tool %s (%s dia) to slot process %s.",
+                    tool_number,
+                    tool.diameter,
+                    selected_spec,
+                )
+                process_map.setdefault(selected_spec, []).append(tool_number)
+            else:
+                logger.error(
+                    "Unable to find compatible slot profile for tool "
+                    "#%s having diameter %s; omitting from output.",
+                    tool_number,
+                    tool.diameter,
+                )
+
+        for process_name, tool_numbers in process_map.items():
+            specs = self.config.slot[process_name].specs
+            for idx, spec in enumerate(specs):
+                layer_name = "slot_{name}_{idx}".format(
+                    name=process_name,
+                    idx=idx,
+                )
+                assert isinstance(spec, MillSlotsJobSpec)
+
+                yield FlatcamMillSlots(
+                    spec,
+                    FlatcamLayer.DRILL,
+                    layer_name,
+                    [layer.tools[n].diameter for n in tool_numbers],
+                )
+                yield FlatcamCNCJob(spec, layer_name, layer_name + "_cnc")
+                yield FlatcamWriteGcode(
+                    layer_name + "_cnc",
+                    self.gerbers.path,
+                    self.counter,
+                    "drill_{name}".format(name=process_name),
+                    "end_mill",
+                    spec.tool_size,
+                )
+
     def _edge_cuts(self) -> Iterable[FlatcamProcess]:
         if not self.config.edge_cuts:
             return
+
+        logger.debug("Processing edge cuts...")
 
         yield FlatcamProcess(
             "cutout",
@@ -399,13 +509,16 @@ class FlatcamProjectGenerator(object):
         )
 
     def get_cnc_processes(self) -> Iterable[FlatcamProcess]:
-        major_step_generators = [
+        major_step_generators: List[Callable[[], Iterable[FlatcamProcess]]] = [
             self._load_layers,
             self._alignment_holes,
             self._copper,
             self._drill,
+            self._slot,
             self._edge_cuts,
         ]
 
         for major_step in major_step_generators:
-            yield from major_step()
+            for step in major_step():
+                logger.debug("Step %s generated", step)
+                yield step

@@ -9,3 +9,7 @@ class BarbariUserError(BarbariError):
 
 class ConfigNotFound(BarbariUserError):
     pass
+
+
+class InvalidConfiguration(BarbariUserError):
+    pass

@@ -1,8 +1,8 @@
-drill:
-  milled:
-    min_size: 1.1
+slot:
+  large:
+    min_size: 1.0
     specs:
-    - type: mill_holes
+    - type: mill_slots
       params:
         tool_size: 1
         cut_z: -2.5

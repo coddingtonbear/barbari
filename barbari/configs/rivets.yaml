@@ -10,4 +10,5 @@ include:
   - ./copper_wire_vias.yaml
   - ./drilled_pth_04_11.yaml
   - ./milled_11.yaml
+  - ./slots_10.yaml
   - ./default_edge_cuts.yaml
