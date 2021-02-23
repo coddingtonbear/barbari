@@ -3,6 +3,7 @@ import logging
 import sys
 
 from rich.console import Console
+from rich.logging import RichHandler
 from rich.traceback import install as enable_rich_traceback
 
 from . import exceptions
@@ -35,8 +36,11 @@ def main(*args):
 
     args = parser.parse_args()
 
-    if args.verbose:
-        logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(
+        format="%(message)s", datefmt="[%X]",
+        handlers=[RichHandler()],
+        level=logging.DEBUG if args.verbose else logging.INFO
+    )
 
     if args.debug:
         import debugpy
