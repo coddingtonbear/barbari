@@ -5,7 +5,7 @@ import sys
 from rich.console import Console
 from rich.traceback import install as enable_rich_traceback
 
-from . import config, exceptions
+from . import exceptions
 from .commands import get_installed_commands
 
 
@@ -19,6 +19,7 @@ def main(*args):
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--debug", default=False, action="store_true")
+    parser.add_argument("--verbose", default=False, action="store_true")
     subparsers = parser.add_subparsers(dest='command')
     subparsers.required = True
 
@@ -33,6 +34,9 @@ def main(*args):
         cmd_class._add_arguments(subparser)
 
     args = parser.parse_args()
+
+    if args.verbose:
+        logging.basicConfig(level=logging.DEBUG)
 
     if args.debug:
         import debugpy

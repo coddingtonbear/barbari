@@ -1,9 +1,9 @@
 import logging
 import os
-from typing import Dict, Iterable, List, Union
+from typing import Dict, Iterable, List, Optional, Union
 
 from .gerbers import GerberProject
-from .config import Config, DrillHolesJobSpec, IsolationRoutingJobSpec, JobSpec, MillHolesJobSpec
+from .config import Config, DrillHolesJobSpec, DrillProfileSpec, IsolationRoutingJobSpec, JobSpec, MillHolesJobSpec
 from .constants import LayerType, FlatcamLayer
 
 
@@ -288,27 +288,45 @@ class FlatcamProjectGenerator(object):
             self.config.isolation_routing.tool_size,
         )
 
+    def _drill_spec_is_more_specific(self, tool, left: Optional[DrillProfileSpec], right: DrillProfileSpec):
+        if not left:
+            return True
+        if tool.diameter in right.sizes and tool.diameter not in left.sizes:
+            return True
+        if (right.max_size - right.min_size) < (left.max_size - right.min_size):
+            return True
+
+        return False
+
+    def _get_spec_for_drill(self, tool, specs: Dict[str, DrillProfileSpec]) -> Optional[str]:
+        selected: Optional[str] = None
+
+        for spec_name, spec in specs.items():
+            if (spec.min_size < tool.diameter <= spec.max_size) or (
+                tool.diameter in spec.sizes
+            ):
+                if self._drill_spec_is_more_specific(tool, specs[selected] if selected else None, spec):
+                    selected = spec_name
+
+        return selected
+
     def _drill(self) -> Iterable[FlatcamProcess]:
         tools = self.gerbers.get_layers()[LayerType.DRILL].tools
 
         process_map: Dict[str, List[int]] = {}
         for tool_number, tool in tools.items():
-            found_spec = False
-            for name, dspec in self.config.drill.items():
-                if dspec.min_size < tool.diameter <= dspec.max_size:
-                    process_map.setdefault(name, []).append(tool_number)
-                    found_spec = True
-                    logger.debug(
-                        "Assigning tool %s (%s dia) to drill process %s.",
-                        tool_number,
-                        tool.diameter,
-                        name,
-                    )
-                    break
-
-            if not found_spec:
+            selected_spec = self._get_spec_for_drill(tool, self.config.drill)
+            if selected_spec:
+                logger.debug(
+                    "Assigning tool %s (%s dia) to drill process %s.",
+                    tool_number,
+                    tool.diameter,
+                    selected_spec,
+                )
+            else:
                 logger.error(
-                    "Unable to find drill profile for " "tool #%s having diameter %s",
+                    "Unable to find compatible drill profile for tool "
+                    "#%s having diameter %s; omitting from output.",
                     tool_number,
                     tool.diameter,
                 )

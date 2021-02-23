@@ -86,11 +86,17 @@ class DrillHolesJobSpec(JobSpec):
 class DrillProfileSpec(JobSpec):
     @property
     def min_size(self) -> float:
+        # Exclusive
         return self._data.get("min_size", 0)
 
     @property
     def max_size(self) -> float:
+        # Inclusive
         return self._data.get("max_size", float("inf"))
+
+    @property
+    def sizes(self) -> List[float]:
+        return self._data.get("sizes", [])
 
     @property
     def specs(self) -> Iterable[Union[MillHolesJobSpec, DrillHolesJobSpec]]:
