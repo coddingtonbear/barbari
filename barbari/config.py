@@ -177,10 +177,10 @@ class Config(object):
     def from_file(self, path) -> Config:
         configs: List[Config] = []
 
-        with open(path, 'r') as inf:
+        with open(path, "r") as inf:
             loaded = yaml.safe_load(inf)
 
-        includes = loaded.pop('include', [])
+        includes = loaded.pop("include", [])
 
         configs.append(Config(loaded))
 
@@ -200,33 +200,33 @@ class Config(object):
         # merging configs at the command-line on an ad-hoc basis; in this
         # particular case, the loaded config *does* know what files are
         # being overlayed, so we should assume its description is OK.
-        if 'description' in loaded:
-            merged._data['description'] = loaded['description']
+        if "description" in loaded:
+            merged._data["description"] = loaded["description"]
 
         return merged
 
     @property
     def description(self) -> Optional[str]:
-        if 'description' in self._data:
-            return self._data['description']
+        if "description" in self._data:
+            return self._data["description"]
 
         return None
 
     @property
     def alignment_holes(self) -> Optional[AlignmentHolesJobSpec]:
-        if 'alignment_holes' not in self._data:
+        if "alignment_holes" not in self._data:
             return None
         return AlignmentHolesJobSpec(self._data["alignment_holes"])
 
     @property
     def isolation_routing(self) -> Optional[IsolationRoutingJobSpec]:
-        if 'isolation_routing' not in self._data:
+        if "isolation_routing" not in self._data:
             return None
         return IsolationRoutingJobSpec(self._data["isolation_routing"])
 
     @property
     def edge_cuts(self) -> Optional[BoardCutoutJobSpec]:
-        if 'edge_cuts' not in self._data:
+        if "edge_cuts" not in self._data:
             return None
         return BoardCutoutJobSpec(self._data["edge_cuts"])
 
@@ -252,8 +252,8 @@ class Config(object):
         left = copy.deepcopy(self._data)
         right = other._data
 
-        overwrite = ['alignment_holes', 'isolation_routing', 'edge_cuts']
-        merge = ['drill', 'slot']
+        overwrite = ["alignment_holes", "isolation_routing", "edge_cuts"]
+        merge = ["drill", "slot"]
 
         for key in overwrite:
             if key in right:
@@ -263,8 +263,8 @@ class Config(object):
             if key in right:
                 left.setdefault(key, {}).update(right[key])
 
-        if 'description' in left:
-            del left['description']
+        if "description" in left:
+            del left["description"]
 
         return Config(left)
 
@@ -284,10 +284,7 @@ def get_default_config_path() -> str:
 def _get_config_path_map() -> Dict[str, str]:
     configs: Dict[str, str] = {}
 
-    directories = [
-        get_default_config_dir(),
-        get_user_config_dir()
-    ]
+    directories = [get_default_config_dir(), get_user_config_dir()]
 
     for directory in directories:
         for filename in os.listdir(directory):

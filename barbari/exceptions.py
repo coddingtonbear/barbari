@@ -1,4 +1,3 @@
-
 class BarbariError(Exception):
     pass
 

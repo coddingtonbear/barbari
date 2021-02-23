@@ -21,7 +21,7 @@ def main(*args):
     parser = argparse.ArgumentParser()
     parser.add_argument("--debug", default=False, action="store_true")
     parser.add_argument("--verbose", default=False, action="store_true")
-    subparsers = parser.add_subparsers(dest='command')
+    subparsers = parser.add_subparsers(dest="command")
     subparsers.required = True
 
     for cmd_name, cmd_class in commands.items():
@@ -37,9 +37,10 @@ def main(*args):
     args = parser.parse_args()
 
     logging.basicConfig(
-        format="%(message)s", datefmt="[%X]",
+        format="%(message)s",
+        datefmt="[%X]",
         handlers=[RichHandler()],
-        level=logging.DEBUG if args.verbose else logging.INFO
+        level=logging.DEBUG if args.verbose else logging.INFO,
     )
 
     if args.debug:

@@ -12,13 +12,13 @@ class Command(BaseCommand):
     def add_arguments(cls, parser: argparse.ArgumentParser) -> None:
         parser.add_argument(
             "--all",
-            action='store_true',
+            action="store_true",
             help=(
                 "By default, only configurations having a written "
                 "description are shown.  If you would like to see "
                 "all configurations, including those that are intended "
                 "to be used as includes, use this flag."
-            )
+            ),
         )
         return super().add_arguments(parser)
 
@@ -36,15 +36,15 @@ class Command(BaseCommand):
             self.console.print(
                 f"Showing {len(to_show)} of {len(all_configs)} configs; "
                 "use --all to see more.",
-                style='red'
+                style="red",
             )
 
         for config_name, conf in to_show.items():
-            formatted = Markdown(conf.description or '')
+            formatted = Markdown(conf.description or "")
 
             self.console.print(f"[blue][b]{config_name}[/b][/blue]")
             if formatted:
-                self.console.print(formatted, style='italic')
+                self.console.print(formatted, style="italic")
             if conf.alignment_holes:
                 self.console.print(f"- Alignment Holes")
             if conf.isolation_routing:
@@ -54,4 +54,6 @@ class Command(BaseCommand):
             if conf.drill:
                 self.console.print("- Drill Profiles")
                 for k, v in conf.drill.items():
-                    self.console.print(f"  - {k}: ({v.min_size or '0'}, {v.max_size or 'Infinity'}]")
+                    self.console.print(
+                        f"  - {k}: ({v.min_size or '0'}, {v.max_size or 'Infinity'}]"
+                    )

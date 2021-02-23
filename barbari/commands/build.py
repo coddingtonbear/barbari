@@ -8,13 +8,23 @@ from . import BaseCommand
 class Command(BaseCommand):
     @classmethod
     def add_arguments(cls, parser: argparse.ArgumentParser) -> None:
-        parser.add_argument("directory", help="Path to a directory holding your gerber/drl exports.")
-        parser.add_argument("config", nargs="+", help="Configuration file to use; later configs override earlier configs -- you can use this to layer your configuration.")
+        parser.add_argument(
+            "directory", help="Path to a directory holding your gerber/drl exports."
+        )
+        parser.add_argument(
+            "config",
+            nargs="+",
+            help="Configuration file to use; later configs override earlier configs -- you can use this to layer your configuration.",
+        )
         return super().add_arguments(parser)
 
     def handle(self) -> None:
-        project = gerbers.GerberProject(os.path.abspath(os.path.expanduser(self.options.directory)))
-        generator = flatcam.FlatcamProjectGenerator(project, config.get_merged_config(self.options.config))
+        project = gerbers.GerberProject(
+            os.path.abspath(os.path.expanduser(self.options.directory))
+        )
+        generator = flatcam.FlatcamProjectGenerator(
+            project, config.get_merged_config(self.options.config)
+        )
 
         output_file = os.path.join(
             self.options.directory,

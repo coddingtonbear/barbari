@@ -14,9 +14,7 @@ logger = logging.getLogger(__name__)
 
 def get_installed_commands():
     possible_commands: Dict[str, Type[BaseCommand]] = {}
-    for entry_point in pkg_resources.iter_entry_points(
-        group="barbari.commands"
-    ):
+    for entry_point in pkg_resources.iter_entry_points(group="barbari.commands"):
         try:
             loaded_class = entry_point.load()
         except ImportError:

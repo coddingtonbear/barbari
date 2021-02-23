@@ -8,12 +8,16 @@ from . import BaseCommand
 
 
 class Command(BaseCommand):
-    FORMAT_HUMAN = 'human'
-    FORMAT_YAML = 'yaml'
+    FORMAT_HUMAN = "human"
+    FORMAT_YAML = "yaml"
 
     @classmethod
     def add_arguments(cls, parser: argparse.ArgumentParser) -> None:
-        parser.add_argument("config", nargs="+", help="Configuration file to display; later configs override earlier configs -- you can use this to layer your configuration.")
+        parser.add_argument(
+            "config",
+            nargs="+",
+            help="Configuration file to display; later configs override earlier configs -- you can use this to layer your configuration.",
+        )
         return super().add_arguments(parser)
 
     def handle(self) -> None:
