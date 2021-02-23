@@ -55,8 +55,8 @@ class MillHolesJobSpec(JobSpec):
 
 class IsolationRoutingJobSpec(JobSpec):
     @property
-    def width(self) -> float:
-        return self._data["width"]
+    def passes(self) -> float:
+        return self._data["passes"]
 
     @property
     def pass_overlap(self) -> float:

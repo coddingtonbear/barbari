@@ -110,7 +110,7 @@ class FlatcamIsolate(FlatcamProcess):
             "isolate",
             self.get_layer_name(input_layer),
             dia=config.tool_size,
-            passes=int(config.width),
+            passes=int(config.passes),
             overlap=config.pass_overlap,
             combine=1,
             outname=self.get_layer_name(output_layer),
