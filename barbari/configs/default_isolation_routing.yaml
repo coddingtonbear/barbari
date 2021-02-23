@@ -6,4 +6,3 @@ isolation_routing:
   travel_z: 2
   feed_rate: 200
   spindle_speed: 12000
-  depth_per_pass: 0.1
