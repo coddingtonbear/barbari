@@ -30,7 +30,7 @@ your board. ![](https://coddingtonbear-public.s3-us-west-2.amazonaws.com/github/
 Generate your flatcam script:
 
 ```
-barbari build /path/to/gerber/exports simple
+barbari build-script /path/to/gerber/exports simple
 ```
 
 "simple" in the above string is the name of the milling configuration to use for the generated flatcam script. Alternative options exist -- see "Configuration" below for details.
