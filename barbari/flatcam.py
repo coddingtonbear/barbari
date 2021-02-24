@@ -494,7 +494,7 @@ class FlatcamProjectGenerator(object):
                     layer_name + "_cnc",
                     self.gerbers.path,
                     self.counter,
-                    "drill_{name}".format(name=process_name),
+                    "slot_{name}".format(name=process_name),
                     "end_mill",
                     spec.tool_size,
                 )
