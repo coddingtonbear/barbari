@@ -12,3 +12,7 @@ class ConfigNotFound(BarbariUserError):
 
 class InvalidConfiguration(BarbariUserError):
     pass
+
+
+class BarbariFlatcamError(Exception):
+    pass

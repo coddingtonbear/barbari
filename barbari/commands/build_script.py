@@ -18,7 +18,7 @@ class Command(BaseCommand):
         )
         return super().add_arguments(parser)
 
-    def handle(self) -> None:
+    def build_script(self) -> str:
         project = gerbers.GerberProject(
             os.path.abspath(os.path.expanduser(self.options.directory))
         )
@@ -31,11 +31,14 @@ class Command(BaseCommand):
             "generate_gcode.FlatScript",
         )
         processes = generator.get_cnc_processes()
-        process_count = 0
         with open(output_file, "w") as outf:
             for process in processes:
-                process_count += 1
                 outf.write(str(process))
                 outf.write("\n")
 
-        self.console.print(f"Wrote {process_count} processes to {output_file}.")
+        return output_file
+
+    def handle(self) -> None:
+        output_file = self.build_script()
+
+        self.console.print(f"Wrote g-code generation script to {output_file}.")
