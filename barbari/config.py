@@ -96,7 +96,7 @@ class ToolProfileSpec(JobSpec):
     @property
     def max_size(self) -> float:
         # Inclusive
-        return self._data.get("max_size", float("inf"))
+        return self._data.get("max_size", 999)
 
     @property
     def sizes(self) -> List[float]:
