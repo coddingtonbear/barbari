@@ -3,7 +3,7 @@ from __future__ import annotations
 import copy
 import logging
 import os
-from typing import cast, Dict, Iterable, List, Optional, Type, Union
+from typing import cast, Dict, Iterable, List, Optional, Type, Union, Tuple
 
 import appdirs
 import yaml
@@ -97,6 +97,36 @@ class ToolProfileSpec(JobSpec):
     def max_size(self) -> float:
         # Inclusive
         return self._data.get("max_size", 999)
+
+    @property
+    def range(self) -> Tuple[float, float]:
+        return self.min_size, self.max_size
+
+    @property
+    def range_center(self) -> float:
+        return self.min_size + ((self.max_size - self.min_size) / 2)
+
+    def allowed_for_tool_size(self, diameter: float) -> bool:
+        range_allowed = "min_size" in self._data or "max_size" in self._data
+
+        if (
+            range_allowed and (self.min_size <= diameter <= self.max_size)
+        ) or diameter in self.sizes:
+            return True
+
+        return False
+
+    def is_better_match_than(
+        self, diameter: float, other: Optional[ToolProfileSpec]
+    ) -> bool:
+        if not other:
+            return True
+        if diameter in self.sizes and diameter not in other.sizes:
+            return True
+        if abs(diameter - self.range_center) < abs(diameter - other.range_center):
+            return True
+
+        return False
 
     @property
     def sizes(self) -> List[float]:

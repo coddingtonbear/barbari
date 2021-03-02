@@ -319,31 +319,16 @@ class FlatcamProjectGenerator(object):
             self.config.isolation_routing.tool_size,
         )
 
-    def _tool_spec_is_more_specific(
-        self, tool, left: Optional[ToolProfileSpec], right: ToolProfileSpec
-    ):
-        if not left:
-            return True
-        if tool.diameter in right.sizes and tool.diameter not in left.sizes:
-            return True
-        if (right.max_size - right.min_size) < (left.max_size - right.min_size):
-            return True
-
-        return False
-
     def _get_spec_for_tool(
         self, tool, specs: Mapping[str, ToolProfileSpec]
     ) -> Optional[str]:
         selected: Optional[str] = None
 
         for spec_name, spec in specs.items():
-            if (spec.min_size < tool.diameter <= spec.max_size) or (
-                tool.diameter in spec.sizes
+            if spec.allowed_for_tool_size(tool.diameter) and spec.is_better_match_than(
+                tool.diameter, specs[selected] if selected else None
             ):
-                if self._tool_spec_is_more_specific(
-                    tool, specs[selected] if selected else None, spec
-                ):
-                    selected = spec_name
+                selected = spec_name
 
         return selected
 

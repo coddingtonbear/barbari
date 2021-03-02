@@ -55,5 +55,5 @@ class Command(BaseCommand):
                 self.console.print("- Drill Profiles")
                 for k, v in conf.drill.items():
                     self.console.print(
-                        f"  - {k}: ({v.min_size or '0'}, {v.max_size or 'Infinity'}]"
+                        f"  - {k}: {v.min_size or '0'}-{v.max_size or 'Infinity'}"
                     )

@@ -11,7 +11,7 @@ class Command(BuildScriptCommand):
         parser.add_argument(
             "--flatcam",
             default="./FlatCAM.py",
-            help="Path to flatcam executable (FlatCAM.py)"
+            help="Path to flatcam executable (FlatCAM.py)",
         )
         parser.add_argument(
             "--python-bin",
@@ -21,7 +21,7 @@ class Command(BuildScriptCommand):
                 "FlatCAM.py; set this to the correct python "
                 "binary for a virtualenvironment if you are "
                 "using one."
-            )
+            ),
         )
         return super().add_arguments(parser)
 
@@ -34,7 +34,7 @@ class Command(BuildScriptCommand):
             [
                 self.options.python_bin,
                 self.options.flatcam,
-                f'--shellfile={output_file}'
+                f"--shellfile={output_file}",
             ],
         )
         result = proc.wait()
