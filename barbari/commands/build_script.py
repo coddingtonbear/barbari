@@ -1,11 +1,17 @@
 import argparse
 import os
+import re
+from typing import List
+
+from rich.prompt import Confirm
 
 from .. import config, gerbers, flatcam
 from . import BaseCommand
 
 
 class Command(BaseCommand):
+    OUTPUT_PATTERN = re.compile("^\d+\..*\.gcode$")
+
     @classmethod
     def add_arguments(cls, parser: argparse.ArgumentParser) -> None:
         parser.add_argument(
@@ -18,6 +24,17 @@ class Command(BaseCommand):
         )
         return super().add_arguments(parser)
 
+    def get_existing_output(self) -> List[str]:
+        existing_files = []
+
+        for filename in os.listdir(
+            os.path.abspath(os.path.expanduser(self.options.directory))
+        ):
+            if self.OUTPUT_PATTERN.match(filename):
+                existing_files.append(filename)
+
+        return existing_files
+
     def build_script(self) -> str:
         project = gerbers.GerberProject(
             os.path.abspath(os.path.expanduser(self.options.directory))
@@ -25,6 +42,20 @@ class Command(BaseCommand):
         generator = flatcam.FlatcamProjectGenerator(
             project, config.get_merged_config(self.options.config)
         )
+
+        existing_files = self.get_existing_output()
+        self.console.print("The following existing flatcam output was found: ")
+        for filename in existing_files:
+            self.console.print(f"- {filename}")
+        delete_existing = Confirm.ask("Would you like to delete these?")
+        if delete_existing:
+            for filename in existing_files:
+                os.unlink(
+                    os.path.join(
+                        os.path.abspath(os.path.expanduser(self.options.directory)),
+                        filename
+                    )
+                )
 
         output_file = os.path.join(
             self.options.directory,
