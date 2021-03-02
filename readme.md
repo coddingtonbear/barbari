@@ -147,7 +147,9 @@ drill:
         depth_per_pass: 0.2
 ```
 
-You'll see from the above that any holes up to 0.4mm in diameter will be drilled using the `via` processes (called `specs` here) -- drilling with a 0.4mm drill, any drills greater than 0.4mm and up to 1.0mm in size will be drilled using a 1.0mm drill bit, and anything bigger than 1.0mm will be milled using a 1.0mm end mill.
+You'll see from the above that any holes up to 0.4mm in diameter will be drilled using the `via` processes (called `specs` here) -- drilling with a 0.4mm drill, any drills from 0.4mm to 1.0mm in size will be drilled using a 1.0mm drill bit, and anything bigger than 1.0mm will be milled using a 1.0mm end mill.  You might
+notice that some drill bit sizes match multiple specs -- that's fine -- barbari
+will choose the best process for each particular tool algorithmically.
 
 In some situations -- mostly around drilling large holes -- you might need a particular range of drill sizes to be drilled more than once.  For example, the included drilling profile for using [voltera 1mm rivets](https://www.voltera.io/store/consumables/rivets-1-0mm) for plated through-holes looks like this:
 
