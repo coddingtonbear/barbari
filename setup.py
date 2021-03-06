@@ -54,6 +54,7 @@ setup(
             'build-script = barbari.commands.build_script:Command',
             'list-configs = barbari.commands.list_configs:Command',
             'display-config = barbari.commands.display_config:Command',
+            'setup-flatcam = barbari.commands.setup_flatcam:Command',
         ]
     },
 )

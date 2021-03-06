@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+from dataclasses import dataclass, asdict
 import logging
 import os
 from typing import cast, Dict, Iterable, List, Optional, Type, Union, Tuple
@@ -300,15 +301,42 @@ class Config(object):
 
 
 def get_user_config_dir() -> str:
-    return appdirs.user_config_dir("barbari", "coddingtonbear")
+    return os.path.join(
+        appdirs.user_config_dir("barbari", "coddingtonbear"),
+        'configs'
+    )
+
+
+def get_environment_config_file_path() -> str:
+    return os.path.join(
+        appdirs.user_config_dir("barbari", "coddingtonbear"),
+        'config.yaml'
+    )
+
+
+@dataclass
+class EnvironmentConfig:
+    flatcam_path: Optional[str] = None
+    python_bin: Optional[str] = None
+
+
+def get_environment_config() -> EnvironmentConfig:
+    try:
+        with open(get_environment_config_file_path(), "r") as inf:
+            loaded = yaml.safe_load(inf)
+
+            return EnvironmentConfig(**loaded)
+    except FileNotFoundError:
+        return EnvironmentConfig()
+
+
+def save_environment_config(cfg: EnvironmentConfig) -> None:
+    with open(get_environment_config_file_path(), "w") as outf:
+        yaml.safe_dump(asdict(cfg), outf)
 
 
 def get_default_config_dir() -> str:
     return os.path.join(os.path.dirname(__file__), "configs")
-
-
-def get_default_config_path() -> str:
-    return os.path.join(get_default_config_dir(), "example.yaml")
 
 
 def _get_config_path_map() -> Dict[str, str]:
@@ -317,6 +345,9 @@ def _get_config_path_map() -> Dict[str, str]:
     directories = [get_default_config_dir(), get_user_config_dir()]
 
     for directory in directories:
+        if not os.path.exists(directory):
+            continue
+
         for filename in os.listdir(directory):
             name, ext = os.path.splitext(filename)
 

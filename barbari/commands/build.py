@@ -10,12 +10,10 @@ class Command(BuildScriptCommand):
     def add_arguments(cls, parser: argparse.ArgumentParser) -> None:
         parser.add_argument(
             "--flatcam",
-            default="./FlatCAM.py",
             help="Path to flatcam executable (FlatCAM.py)",
         )
         parser.add_argument(
             "--python-bin",
-            default="python",
             help=(
                 "Path to the python binary to use when running "
                 "FlatCAM.py; set this to the correct python "
@@ -32,8 +30,8 @@ class Command(BuildScriptCommand):
 
         proc = subprocess.Popen(
             [
-                self.options.python_bin,
-                self.options.flatcam,
+                self.options.python_bin or self.config.python_bin or 'python',
+                self.options.flatcam or self.config.flatcam_path or './FlatCam.py',
                 f"--shellfile={output_file}",
             ],
         )

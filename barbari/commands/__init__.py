@@ -8,6 +8,8 @@ from typing import Dict, Type
 
 from rich.console import Console
 
+from ..config import EnvironmentConfig, get_environment_config
+
 
 logger = logging.getLogger(__name__)
 
@@ -36,10 +38,19 @@ def get_installed_commands():
 
 
 class BaseCommand(metaclass=ABCMeta):
+    _options: argparse.Namespace
+    _console: Console
+    _config: EnvironmentConfig
+
     def __init__(self, options: argparse.Namespace):
         self._options: argparse.Namespace = options
         self._console = Console()
+        self._config = get_environment_config()
         super().__init__()
+
+    @property
+    def config(self) -> EnvironmentConfig:
+        return self._config
 
     @property
     def options(self) -> argparse.Namespace:
