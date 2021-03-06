@@ -512,6 +512,11 @@ class FlatcamProjectGenerator(object):
             self.config.edge_cuts.tool_size,
         )
 
+    def _quit(self) -> Iterable[FlatcamProcess]:
+        yield FlatcamProcess(
+            "quit_flatcam"
+        )
+
     def get_cnc_processes(self) -> Iterable[FlatcamProcess]:
         major_step_generators: List[Callable[[], Iterable[FlatcamProcess]]] = [
             self._load_layers,
@@ -520,6 +525,7 @@ class FlatcamProjectGenerator(object):
             self._drill,
             self._slot,
             self._edge_cuts,
+            self._quit
         ]
 
         for major_step in major_step_generators:
