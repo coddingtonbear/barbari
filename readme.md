@@ -176,6 +176,10 @@ In some situations -- mostly around drilling large holes -- you might need a par
 
 The above configuration will drill any holes from 0.4mm to 1.1mm in diameter twice -- first with a 0.7mm drill, and then afterward with a 1.5mm drill.
 
+### `slot`
+
+The slot section defines job parameters for milling slots in your PCB (i.e. non-round holes).  It follows exactly the same pattern used for `drill` above.
+
 #### `edge_cuts`
 
 You probably won't be using an entire sheet of copper-clad board for your board.  This section defines how to cut your newly-milled PCB out of the copper-clad.
