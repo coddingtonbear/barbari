@@ -30,8 +30,8 @@ class Command(BuildScriptCommand):
 
         proc = subprocess.Popen(
             [
-                self.options.python_bin or self.config.python_bin or 'python',
-                self.options.flatcam or self.config.flatcam_path or './FlatCam.py',
+                self.options.python_bin or self.config.python_bin or "python",
+                self.options.flatcam or self.config.flatcam_path or "./FlatCam.py",
                 f"--shellfile={output_file}",
             ],
         )

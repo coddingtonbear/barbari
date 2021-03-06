@@ -54,7 +54,7 @@ class Command(BaseCommand):
                     os.unlink(
                         os.path.join(
                             os.path.abspath(os.path.expanduser(self.options.directory)),
-                            filename
+                            filename,
                         )
                     )
 

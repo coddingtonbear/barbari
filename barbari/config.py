@@ -301,16 +301,12 @@ class Config(object):
 
 
 def get_user_config_dir() -> str:
-    return os.path.join(
-        appdirs.user_config_dir("barbari", "coddingtonbear"),
-        'configs'
-    )
+    return os.path.join(appdirs.user_config_dir("barbari", "coddingtonbear"), "configs")
 
 
 def get_environment_config_file_path() -> str:
     return os.path.join(
-        appdirs.user_config_dir("barbari", "coddingtonbear"),
-        'config.yaml'
+        appdirs.user_config_dir("barbari", "coddingtonbear"), "config.yaml"
     )
 
 

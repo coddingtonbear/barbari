@@ -11,7 +11,7 @@ class Command(BaseCommand):
     def add_arguments(cls, parser: argparse.ArgumentParser) -> None:
         parser.add_argument(
             "--flatcam",
-            #default="./FlatCAM.py",
+            # default="./FlatCAM.py",
             required=True,
             help="Path to flatcam executable (FlatCAM.py)",
         )
@@ -38,7 +38,7 @@ class Command(BaseCommand):
             stderr=subprocess.PIPE,
         )
         stdout, stderr = proc.communicate()
-        if '--shellfile' not in stdout.decode('utf-8'):
+        if "--shellfile" not in stdout.decode("utf-8"):
             raise BarbariFlatcamError(
                 "Could not start FlatCam using the provided parameters: "
                 f"stdout: {stdout}, stderr: {stderr}"
@@ -49,4 +49,3 @@ class Command(BaseCommand):
 
         config.save_environment_config(self.config)
         self.console.print("[green]Flatcam found. [b]Configuration saved[/b][/green]")
-
