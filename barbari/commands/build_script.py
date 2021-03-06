@@ -44,18 +44,19 @@ class Command(BaseCommand):
         )
 
         existing_files = self.get_existing_output()
-        self.console.print("The following existing flatcam output was found: ")
-        for filename in existing_files:
-            self.console.print(f"- {filename}")
-        delete_existing = Confirm.ask("Would you like to delete these?")
-        if delete_existing:
-            for filename in existing_files:
-                os.unlink(
-                    os.path.join(
-                        os.path.abspath(os.path.expanduser(self.options.directory)),
-                        filename
+        if existing_files:
+            self.console.print("The following existing flatcam output was found: ")
+            for filename in sorted(existing_files):
+                self.console.print(f"- {filename}")
+            delete_existing = Confirm.ask("Would you like to delete these?")
+            if delete_existing:
+                for filename in existing_files:
+                    os.unlink(
+                        os.path.join(
+                            os.path.abspath(os.path.expanduser(self.options.directory)),
+                            filename
+                        )
                     )
-                )
 
         output_file = os.path.join(
             self.options.directory,
