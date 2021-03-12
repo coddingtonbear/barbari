@@ -16,10 +16,15 @@ logger = logging.getLogger(__name__)
 
 
 class JobSpec(object):
-    def __init__(self, data):
+    def __init__(self, data, name=None):
         self._data = data
+        self._name = name
 
         super().__init__()
+
+    @property
+    def name(self) -> str:
+        return self._name
 
     @property
     def tool_size(self) -> float:
@@ -48,6 +53,9 @@ class JobSpec(object):
     @property
     def depth_per_pass(self) -> float:
         return self._data.get("depth_per_pass")
+
+    def __repr__(self):
+        return f"<{self.__class__.__name__}: {self.name or self._data}>"
 
 
 class MillHolesJobSpec(JobSpec):
@@ -91,12 +99,10 @@ class DrillHolesJobSpec(JobSpec):
 class ToolProfileSpec(JobSpec):
     @property
     def min_size(self) -> float:
-        # Exclusive
         return self._data.get("min_size", 0)
 
     @property
     def max_size(self) -> float:
-        # Inclusive
         return self._data.get("max_size", 999)
 
     @property
@@ -122,10 +128,42 @@ class ToolProfileSpec(JobSpec):
     ) -> bool:
         if not other:
             return True
+
+        # If one spec specifically mentions a particular drill
+        # size, it wins.
         if diameter in self.sizes and diameter not in other.sizes:
             return True
+        elif diameter in other.sizes and diameter not in self.sizes:
+            return False
+
+        # If one spec is using only drilling profiles, and matches
+        # our hole size exactly, that one wins
+        if (
+            all(isinstance(spec, DrillHolesJobSpec) for spec in self.specs)
+            and max(spec.tool_size <= diameter for spec in self.specs) == diameter
+        ):
+            return True
+        elif (
+            all(isinstance(spec, DrillHolesJobSpec) for spec in other.specs)
+            and max(spec.tool_size <= diameter for spec in other.specs) == diameter
+        ):
+            return False
+
+        # If one spec is all milling profiles with a tool size below
+        # our diameter, that side wins
+        if all(isinstance(spec, MillHolesJobSpec) for spec in self.specs) and all(
+            spec.tool_size <= diameter for spec in self.specs
+        ):
+            return True
+        elif all(isinstance(spec, MillHolesJobSpec) for spec in other.specs) and all(
+            spec.tool_size <= diameter for spec in other.specs
+        ):
+            return False
+
         if abs(diameter - self.range_center) < abs(diameter - other.range_center):
             return True
+        elif abs(diameter - other.range_center) < abs(diameter - self.range_center):
+            return False
 
         return False
 
@@ -266,7 +304,7 @@ class Config(object):
         drill_range_specs = {}
 
         for name, data in self._data.get("drill", {}).items():
-            drill_range_specs[name] = DrillProfileSpec(data)
+            drill_range_specs[name] = DrillProfileSpec(data, name=name)
 
         return drill_range_specs
 
@@ -275,7 +313,7 @@ class Config(object):
         drill_range_specs = {}
 
         for name, data in self._data.get("slot", {}).items():
-            drill_range_specs[name] = SlotProfileSpec(data)
+            drill_range_specs[name] = SlotProfileSpec(data, name=name)
 
         return drill_range_specs
 
