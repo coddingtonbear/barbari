@@ -176,7 +176,7 @@ In some situations -- mostly around drilling large holes -- you might need a par
 
 The above configuration will drill any holes from 0.4mm to 1.1mm in diameter twice -- first with a 0.7mm drill, and then afterward with a 1.5mm drill.
 
-### `slot`
+#### `slot`
 
 The slot section defines job parameters for milling slots in your PCB (i.e. non-round holes).  It follows exactly the same pattern used for `drill` above.
 
