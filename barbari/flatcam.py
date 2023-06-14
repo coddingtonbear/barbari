@@ -59,7 +59,7 @@ class FlatcamCNCJob(FlatcamProcess):
         if config.multi_depth or config.depth_per_pass:
             extra_kwargs["dpp"] = config.depth_per_pass
 
-        return super().__init__(
+        super().__init__(
             "cncjob",
             self.get_layer_name(input_layer),
             z_cut=config.cut_z,
@@ -80,7 +80,7 @@ class FlatcamDrillCNCJob(FlatcamProcess):
         output_layer: Union[FlatcamLayer, str],
         drilled_dias: List[float],
     ):
-        return super().__init__(
+        super().__init__(
             "drillcncjob",
             self.get_layer_name(input_layer),
             drilled_dias=",".join(str(dia) for dia in drilled_dias),
@@ -100,7 +100,7 @@ class FlatcamMillHoles(FlatcamProcess):
         output_layer: Union[FlatcamLayer, str],
         milled_dias: List[float],
     ):
-        return super().__init__(
+        super().__init__(
             "milldrills",
             self.get_layer_name(input_layer),
             tooldia=config.tool_size,
@@ -117,7 +117,7 @@ class FlatcamMillSlots(FlatcamProcess):
         output_layer: Union[FlatcamLayer, str],
         milled_dias: List[float],
     ):
-        return super().__init__(
+        super().__init__(
             "millslots",
             self.get_layer_name(input_layer),
             tooldia=config.tool_size,
@@ -133,7 +133,7 @@ class FlatcamIsolate(FlatcamProcess):
         input_layer: Union[FlatcamLayer, str],
         output_layer: Union[FlatcamLayer, str],
     ):
-        return super().__init__(
+        super().__init__(
             "isolate",
             self.get_layer_name(input_layer),
             dia=config.tool_size,
@@ -154,7 +154,7 @@ class FlatcamWriteGcode(FlatcamProcess):
         tool_name: str,
         tool_size: float,
     ):
-        return super().__init__(
+        super().__init__(
             "write_gcode",
             self.get_layer_name(layer),
             os.path.join(

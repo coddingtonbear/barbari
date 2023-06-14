@@ -46,7 +46,7 @@ class Command(BaseCommand):
             if formatted:
                 self.console.print(formatted, style="italic")
             if conf.alignment_holes:
-                self.console.print(f"- Alignment Holes")
+                self.console.print("- Alignment Holes")
             if conf.isolation_routing:
                 self.console.print("- Isolation Routing")
             if conf.edge_cuts:

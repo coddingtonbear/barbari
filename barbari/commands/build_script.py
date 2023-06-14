@@ -10,7 +10,7 @@ from . import BaseCommand
 
 
 class Command(BaseCommand):
-    OUTPUT_PATTERN = re.compile("^\d+\..*\.gcode$")
+    OUTPUT_PATTERN = re.compile(r"^\d+\..*\.gcode$")
 
     @classmethod
     def add_arguments(cls, parser: argparse.ArgumentParser) -> None:

@@ -41,7 +41,7 @@ class Command(BaseCommand):
         if "--shellfile" not in stdout.decode("utf-8"):
             raise BarbariFlatcamError(
                 "Could not start FlatCam using the provided parameters: "
-                f"stdout: {stdout}, stderr: {stderr}"
+                f"stdout: {stdout.decode('utf-8', 'replace')}, stderr: {stderr.decode('utf-8', 'replace')}"
             )
 
         self.config.flatcam_path = self.options.flatcam
