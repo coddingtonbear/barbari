@@ -97,6 +97,7 @@ Example:
 isolation_routing:
   tool_size: 0.18
   width: 1
+  passes: 2
   pass_overlap: 1
   cut_z: -0.2
   travel_z: 2
