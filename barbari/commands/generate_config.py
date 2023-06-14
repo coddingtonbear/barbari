@@ -22,15 +22,18 @@ class Command(BaseCommand):
         os.makedirs(
             config.get_user_config_dir(), exist_ok=True
         )
+
+        final_path = os.path.join(
+                config.get_user_config_dir(),
+                final_path,
+            )
+
         shutil.copyfile(
             os.path.join(
                 config.get_default_config_dir(),
                 self.DEFAULT_CONFIG,
             ),
-            os.path.join(
-                config.get_user_config_dir(),
-                final_path,
-            )
+            final_path
         )
 
         self.console.print(
