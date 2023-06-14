@@ -1,13 +1,14 @@
 import argparse
 import os
-
-import yaml
+import shutil
 
 from .. import config
 from . import BaseCommand
 
 
 class Command(BaseCommand):
+    DEFAULT_CONFIG = "example.yaml"
+
     @classmethod
     def add_arguments(cls, parser: argparse.ArgumentParser) -> None:
         parser.add_argument(
@@ -19,10 +20,18 @@ class Command(BaseCommand):
         final_path = f"{self.options.name}.yaml"
 
         os.makedirs(
-            os.path.dirname(config.get_user_config_path(final_path)), exist_ok=True
+            config.get_user_config_dir(), exist_ok=True
         )
-        with open(config.get_user_config_path(final_path), "w") as outf:
-            outf.write(yaml.safe_dump(config.get_default_config_dict()))
+        shutil.copyfile(
+            os.path.join(
+                config.get_default_config_dir(),
+                self.DEFAULT_CONFIG,
+            ),
+            os.path.join(
+                config.get_user_config_dir(),
+                final_path,
+            )
+        )
 
         self.console.print(
             f"Configuration '{self.options.name}' written to '{final_path}'."
