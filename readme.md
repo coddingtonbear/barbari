@@ -115,36 +115,36 @@ drill:
   via:
     max_size: 0.4
     specs:
-    - type: cnc_drill
-      params:
-        tool_size: 0.4
-        drill_z: -2.5
-        travel_z: 2
-        feed_rate: 50
-        spindle_speed: 12000
+      - type: cnc_drill
+        params:
+          tool_size: 0.4
+          drill_z: -2.5
+          travel_z: 2
+          feed_rate: 50
+          spindle_speed: 12000
   drilled:
     min_size: 0.4
     max_size: 1.0
     specs:
-    - type: cnc_drill
-      params:
-        tool_size: 1.0
-        drill_z: -2.5
-        travel_z: 2
-        feed_rate: 50
-        spindle_speed: 12000
+      - type: cnc_drill
+        params:
+          tool_size: 1.0
+          drill_z: -2.5
+          travel_z: 2
+          feed_rate: 50
+          spindle_speed: 12000
   milled:
     min_size: 1.0
     specs:
-    - type: mill_holes
-      params:
-        tool_size: 1
-        cut_z: -2.5
-        travel_z: 2
-        feed_rate: 100
-        spindle_speed: 12000
-        multi_depth: true
-        depth_per_pass: 0.2
+      - type: mill_holes
+        params:
+          tool_size: 1
+          cut_z: -2.5
+          travel_z: 2
+          feed_rate: 100
+          spindle_speed: 12000
+          multi_depth: true
+          depth_per_pass: 0.2
 ```
 
 You'll see from the above that any holes up to 0.4mm in diameter will be drilled using the `via` processes (called `specs` here) -- drilling with a 0.4mm drill, any drills from 0.4mm to 1.0mm in size will be drilled using a 1.0mm drill bit, and anything bigger than 1.0mm will be milled using a 1.0mm end mill.  You might
@@ -158,20 +158,20 @@ In some situations -- mostly around drilling large holes -- you might need a par
     min_size: 0.4
     max_size: 1.1
     specs:
-    - type: cnc_drill
-      params:
-        tool_size: 0.7
-        drill_z: -2.5
-        travel_z: 2
-        feed_rate: 50
-        spindle_speed: 12000
-    - type: cnc_drill
-      params:
-        tool_size: 1.5
-        drill_z: -2.5
-        travel_z: 2
-        feed_rate: 50
-        spindle_speed: 12000
+      - type: cnc_drill
+        params:
+          tool_size: 0.7
+          drill_z: -2.5
+          travel_z: 2
+          feed_rate: 50
+          spindle_speed: 12000
+      - type: cnc_drill
+        params:
+          tool_size: 1.5
+          drill_z: -2.5
+          travel_z: 2
+          feed_rate: 50
+          spindle_speed: 12000
 ```
 
 The above configuration will drill any holes from 0.4mm to 1.1mm in diameter twice -- first with a 0.7mm drill, and then afterward with a 1.5mm drill.
