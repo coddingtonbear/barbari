@@ -2,12 +2,12 @@ slot:
   large:
     min_size: 1.0
     specs:
-    - type: mill_slots
-      params:
-        tool_size: 1
-        cut_z: -2.5
-        travel_z: 2
-        feed_rate: 100
-        spindle_speed: 12000
-        multi_depth: true
-        depth_per_pass: 0.2
+      - type: mill_slots
+        params:
+          tool_size: 1
+          cut_z: -2.5
+          travel_z: 2
+          feed_rate: 100
+          spindle_speed: 12000
+          multi_depth: true
+          depth_per_pass: 0.2
